@@ -65,19 +65,9 @@ end
 
 
 # --- Create output folder if it does not exist ---
-if !isdir("Output/reference")
-    mkdir("Output/reference")
-end
 
-
-
-    # data = filter(row -> row[:StudyID] == 2, IC_Global)
-    # x = :Q1
-    # y = :R1
-    #     title_string = "Figure 2. DRI Plots: FNQCJ Case"
-    #     suffix = "PRE"
-
-    #                     DRI = first(filter(row -> row[:StudyID] == 2, DRI_Global))
+outdir = "Output/reference"
+mkpath(outdir)
 
 
 """
@@ -167,7 +157,7 @@ function main()
     Random.seed!(123)
 
     # Create output directories if they don't exist
-    mkpath("Output/reference/Figures")
+    mkpath("$outdir/Figures")
 
     # --- Read input data ---
     data_orig = CSV.read("Input/Data1_Raw_Input.csv", DataFrame)
@@ -335,9 +325,9 @@ function main()
     DRIInd_Global_2 = hcat(DRIInd_Global_1, DataFrame(PNum = DRI0.PNum))
 
     # --- Save output CSV files ---
-    CSV.write("Output/reference/DRIGlobal.csv", DRI_Global)
-    CSV.write("Output/reference/DRI_Individual_Global_NO_Control.csv", DRIInd_Global_2)
-    CSV.write("Output/reference/DRI_Individual_Global.csv", DRIInd_Global)
+    CSV.write("$outdir/DRIGlobal.csv", DRI_Global)
+    CSV.write("$outdir/DRI_Individual_Global_NO_Control.csv", DRIInd_Global_2)
+    CSV.write("$outdir/DRI_Individual_Global.csv", DRIInd_Global)
 
     # =============================================================================
     # Generate and save Figure 2 plots
@@ -351,14 +341,14 @@ function main()
                         "Figure 2. DRI Plots: FNQCJ Case", "PRE",
                         first(filter(row -> row[:StudyID] == 2, DRI_Global)).DRI_PRE)
 
-    savefig(fig2_pre, "Output/reference/Figures/Fig2_a_Pre.pdf")
+    savefig(fig2_pre, "$outdir/Figures/Fig2_a_Pre.pdf")
 
     fig2_post = dri_plot(filter(row -> row[:StudyID] == 2, IC_Global),
                          :Q2, :R2,
                          "Figure 2. DRI Plots: FNQCJ Case", "POST",
                          first(filter(row -> row[:StudyID] == 2, DRI_Global)).DRI_POST)
 
-    savefig(fig2_post, "Output/reference/Figures/Fig2_b_Post.pdf")
+    savefig(fig2_post, "$outdir/Figures/Fig2_b_Post.pdf")
 
     # =============================================================================
     # Generate and save Figure 3 plots
@@ -369,39 +359,39 @@ function main()
                                 :Q1, :R1,
                                 "Figure 3. DRI Plots: Uppsala Speaks Study", "PRE",
                                 first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 0.1, DRI_Global)).DRI_PRE)
-    savefig(fig3_control_pre, "Output/reference/Figures/Fig3_1Control_a_Pre.pdf")
+    savefig(fig3_control_pre, "$outdir/Figures/Fig3_1Control_a_Pre.pdf")
 
     fig3_control_post = dri_plot(filter(row -> row[:StudyID] == 1 && row[:CaseId] == 0.1, IC_Global),
                                  :Q2, :R2,
                                  "Figure 3. DRI Plots: Uppsala Speaks Study", "POST",
                                  first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 0.1, DRI_Global)).DRI_POST)
-    savefig(fig3_control_post, "Output/reference/Figures/Fig3_1Control_b_Post.pdf")
+    savefig(fig3_control_post, "$outdir/Figures/Fig3_1Control_b_Post.pdf")
 
     # Figure 3 – Part 2: Group Briefing (e.g. CaseId == 1 for StudyID == 1)
     fig3_brief_pre = dri_plot(filter(row -> row[:StudyID] == 1 && row[:CaseId] == 1, IC_Global),
                               :Q1, :R1,
                               "Figure 3. DRI Plots: Uppsala Speaks Study", "PRE",
                               first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 1, DRI_Global)).DRI_PRE)
-    savefig(fig3_brief_pre, "Output/reference/Figures/Fig3_2Brief_a_Pre.pdf")
+    savefig(fig3_brief_pre, "$outdir/Figures/Fig3_2Brief_a_Pre.pdf")
 
     fig3_brief_post = dri_plot(filter(row -> row[:StudyID] == 1 && row[:CaseId] == 1, IC_Global),
                                :Q2, :R2,
                                "Figure 3. DRI Plots: Uppsala Speaks Study", "POST",
                                first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 1, DRI_Global)).DRI_POST)
-    savefig(fig3_brief_post, "Output/reference/Figures/Fig3_2Brief_b_Post.pdf")
+    savefig(fig3_brief_post, "$outdir/Figures/Fig3_2Brief_b_Post.pdf")
 
     # Figure 3 – Part 3: Group Building Plus (e.g. CaseId == 2 for StudyID == 1)
     fig3_building_pre = dri_plot(filter(row -> row[:StudyID] == 1 && row[:CaseId] == 2, IC_Global),
                                  :Q1, :R1,
                                  "Figure 3. DRI Plots: Uppsala Speaks Study", "PRE",
                                  first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 2, DRI_Global)).DRI_PRE)
-    savefig(fig3_building_pre, "Output/reference/Figures/Fig3_3Building_a_Pre.pdf")
+    savefig(fig3_building_pre, "$outdir/Figures/Fig3_3Building_a_Pre.pdf")
 
     fig3_building_post = dri_plot(filter(row -> row[:StudyID] == 1 && row[:CaseId] == 2, IC_Global),
                                   :Q2, :R2,
                                   "Figure 3. DRI Plots: Uppsala Speaks Study", "POST",
                                   first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 2, DRI_Global)).DRI_POST)
-    savefig(fig3_building_post, "Output/reference/Figures/Fig3_3Building_b_Post.pdf")
+    savefig(fig3_building_post, "$outdir/Figures/Fig3_3Building_b_Post.pdf")
 
 end
 

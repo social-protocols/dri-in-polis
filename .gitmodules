@@ -1,0 +1,3 @@
+[submodule "Input/polis"]
+	path = Input/polis
+	url = git@github.com:compdemocracy/openData.git
