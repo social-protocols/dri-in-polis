@@ -178,7 +178,7 @@ end
 
 function main_polis_dri(case::String; correlation_method::Symbol)
 
-    votes_file = "Input/polis/$case/votes.csv"
+    votes_file = "polis/openData/$case/votes.csv"
 
     votes_df = CSV.read(votes_file, DataFrame)
 

@@ -55,7 +55,7 @@ This will produce data and plots in the directory Output/reference.
 
 ### Arguments
 
-By default, this runs the analysis for the vtaiwan.uberx case. You can optionally specify any case under Input/polis/openData/, which is a clone of https://github.com/compdemocracy/openData, as the first argument.
+By default, this runs the analysis for the vtaiwan.uberx case. You can optionally specify any case under polis/openData/, which is a clone of https://github.com/compdemocracy/openData, as the first argument.
 
 The second argument can be the name of a correlation method, currently "phi", "pearson", or "pearson_binary"
 
