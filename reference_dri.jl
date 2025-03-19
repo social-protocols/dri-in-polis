@@ -92,13 +92,14 @@ function dri_plot(data::DataFrame, x::Symbol, y::Symbol, title_str::String, suff
     x_jitter = xdata .+ jitter_width .* randn(length(xdata))
     y_jitter = ydata .+ jitter_width .* randn(length(ydata))
 
-    # Start a scatter plot (no legend)
+    # Start a scatter plot (no legend) with 100 DPI
     p = scatter(x_jitter, y_jitter,
         markersize = 2,
         markercolor = RGBA(0.1, 0, 1, 0.6),
         label = "",
         xlims = (-1.1, 1.1), ylims = (-1.1, 1.1),
-        legend = false)
+        legend = false,
+        dpi = 100)
 
     # Remove grid lines
     plot!(p, grid = false)
@@ -227,7 +228,7 @@ function main()
                     IC = DataFrame(P_P = P_P, P1 = P1, P2 = P2)
                 end
                 
-                # Prepare the current stage’s Q and R correlations as new columns.
+                # Prepare the current stage's Q and R correlations as new columns.
                 Q_colname = Symbol("Q" * string(stage))
                 R_colname = Symbol("R" * string(stage))
                 Q_stage = DataFrame(Q_colname => QWrite.Freq)
@@ -341,14 +342,14 @@ function main()
                         "Figure 2. DRI Plots: FNQCJ Case", "PRE",
                         first(filter(row -> row[:StudyID] == 2, DRI_Global)).DRI_PRE)
 
-    savefig(fig2_pre, "$outdir/Figures/Fig2_a_Pre.pdf")
+    savefig(fig2_pre, "$outdir/Figures/Fig2_a_Pre.png")
 
     fig2_post = dri_plot(filter(row -> row[:StudyID] == 2, IC_Global),
                          :Q2, :R2,
                          "Figure 2. DRI Plots: FNQCJ Case", "POST",
                          first(filter(row -> row[:StudyID] == 2, DRI_Global)).DRI_POST)
 
-    savefig(fig2_post, "$outdir/Figures/Fig2_b_Post.pdf")
+    savefig(fig2_post, "$outdir/Figures/Fig2_b_Post.png")
 
     # =============================================================================
     # Generate and save Figure 3 plots
@@ -359,39 +360,39 @@ function main()
                                 :Q1, :R1,
                                 "Figure 3. DRI Plots: Uppsala Speaks Study", "PRE",
                                 first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 0.1, DRI_Global)).DRI_PRE)
-    savefig(fig3_control_pre, "$outdir/Figures/Fig3_1Control_a_Pre.pdf")
+    savefig(fig3_control_pre, "$outdir/Figures/Fig3_1Control_a_Pre.png")
 
     fig3_control_post = dri_plot(filter(row -> row[:StudyID] == 1 && row[:CaseId] == 0.1, IC_Global),
                                  :Q2, :R2,
                                  "Figure 3. DRI Plots: Uppsala Speaks Study", "POST",
                                  first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 0.1, DRI_Global)).DRI_POST)
-    savefig(fig3_control_post, "$outdir/Figures/Fig3_1Control_b_Post.pdf")
+    savefig(fig3_control_post, "$outdir/Figures/Fig3_1Control_b_Post.png")
 
     # Figure 3 – Part 2: Group Briefing (e.g. CaseId == 1 for StudyID == 1)
     fig3_brief_pre = dri_plot(filter(row -> row[:StudyID] == 1 && row[:CaseId] == 1, IC_Global),
                               :Q1, :R1,
                               "Figure 3. DRI Plots: Uppsala Speaks Study", "PRE",
                               first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 1, DRI_Global)).DRI_PRE)
-    savefig(fig3_brief_pre, "$outdir/Figures/Fig3_2Brief_a_Pre.pdf")
+    savefig(fig3_brief_pre, "$outdir/Figures/Fig3_2Brief_a_Pre.png")
 
     fig3_brief_post = dri_plot(filter(row -> row[:StudyID] == 1 && row[:CaseId] == 1, IC_Global),
                                :Q2, :R2,
                                "Figure 3. DRI Plots: Uppsala Speaks Study", "POST",
                                first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 1, DRI_Global)).DRI_POST)
-    savefig(fig3_brief_post, "$outdir/Figures/Fig3_2Brief_b_Post.pdf")
+    savefig(fig3_brief_post, "$outdir/Figures/Fig3_2Brief_b_Post.png")
 
     # Figure 3 – Part 3: Group Building Plus (e.g. CaseId == 2 for StudyID == 1)
     fig3_building_pre = dri_plot(filter(row -> row[:StudyID] == 1 && row[:CaseId] == 2, IC_Global),
                                  :Q1, :R1,
                                  "Figure 3. DRI Plots: Uppsala Speaks Study", "PRE",
                                  first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 2, DRI_Global)).DRI_PRE)
-    savefig(fig3_building_pre, "$outdir/Figures/Fig3_3Building_a_Pre.pdf")
+    savefig(fig3_building_pre, "$outdir/Figures/Fig3_3Building_a_Pre.png")
 
     fig3_building_post = dri_plot(filter(row -> row[:StudyID] == 1 && row[:CaseId] == 2, IC_Global),
                                   :Q2, :R2,
                                   "Figure 3. DRI Plots: Uppsala Speaks Study", "POST",
                                   first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 2, DRI_Global)).DRI_POST)
-    savefig(fig3_building_post, "$outdir/Figures/Fig3_3Building_b_Post.pdf")
+    savefig(fig3_building_post, "$outdir/Figures/Fig3_3Building_b_Post.png")
 
 end
 
