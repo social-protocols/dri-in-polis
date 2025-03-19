@@ -265,7 +265,7 @@ function main_polis_dri(case::String; correlation_method::Symbol)
     CSV.write("$outdir/DRIInd_polis-$(correlation_method).csv", DRIInd)
 
     # --- Make one scatter plot for the entire group
-    p = dri_plot(IC, :Q1, :R1, "DRI for pol.is data (method=$(correlation_method))", group_DRI)
+    p = dri_plot(IC, :Q1, :R1, "DRI plots: pol.is $case ($correlation_method)", group_DRI)
     savefig(p, "$outdir/Figures/polis_dri_plot-$(correlation_method).png")
     println("Wrote .csv and .png files to $outdir/")
 end
