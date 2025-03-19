@@ -34,6 +34,11 @@ NOTE: as of this initial implementation, statements are classified RANDOMLY as c
    cd dri-julia
    ```
 
+3. **Install Dependencies:**
+
+   julia --project -e 'using Pkg; Pkg.instantiate()'
+
+
 ## Downloading Data for Reference Implementation
 
 - Go to https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/6OKNOY
@@ -43,14 +48,12 @@ NOTE: as of this initial implementation, statements are classified RANDOMLY as c
 
 ## Running Reference Implementation
 
-   julia --project -e 'using Pkg; Pkg.instantiate()'
    julia --project reference_dri.jl
 
 This will produce data and plots in the directory Output/reference.
 
 ## Running Pol.is Implementation
 
-   julia --project -e 'using Pkg; Pkg.instantiate()'
    julia --project polis_dri.jl
 
 ### Arguments
@@ -58,7 +61,6 @@ This will produce data and plots in the directory Output/reference.
 By default, this runs the analysis for the vtaiwan.uberx case. You can optionally specify any case under polis/openData/, which is a clone of https://github.com/compdemocracy/openData, as the first argument.
 
 The second argument can be the name of a correlation method, currently "phi", "pearson", or "pearson_binary"
-
 
    julia --project polis_dri.jl american-assembly.bowling-green pearson_binary
 
