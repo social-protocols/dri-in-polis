@@ -199,9 +199,8 @@ function main_polis_dri(case::String; correlation_method::Symbol)
         sort!(unstacked, :comment_id)
 
         # Drop comment ID. Replace missing values with 0.
-        select(coalesce.(unstacked, 0), Not(:comment_id))
+        select(unstacked, Not(:comment_id))
     end
-
 
     df_wide = pivot_votes_to_matrix(df)
 
@@ -209,9 +208,8 @@ function main_polis_dri(case::String; correlation_method::Symbol)
     # Random.seed!(9362)
     tags = rand(["c", "p"], nrow(df_wide))
 
-    consider_counts = [ sum((df_wide[:,j] .* (tags .== "c")) .!== 0) for j in 1:ncol(df_wide)]
-    pref_counts = [ sum((df_wide[:,j] .* (tags .== "p")) .!== 0) for j in 1:ncol(df_wide)]
-
+    consider_counts = [ sum( ( coalesce.(df_wide[:,j], 0) .* (tags .== "c") ) .!== 0) for j in 1:ncol(df_wide)]
+    pref_counts = [ sum( ( coalesce.(df_wide[:,j], 0) .* (tags .== "p") ) .!== 0) for j in 1:ncol(df_wide)]
 
     # get indices of users that have at least min_answers preferences and min_answers considerations
     consider_indices = findall(consider_counts .>= min_answers)
