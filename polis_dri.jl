@@ -176,7 +176,7 @@ end
 # 2) Main function: single-case pol.is data
 ###############################################################################
 
-function main_polis_dri(case::String; correlation_method::Symbol)
+function main_polis_dri(case::String; correlation_method::Symbol, threshold::Int)
 
     votes_file = "polis/openData/$case/votes.csv"
 
@@ -187,6 +187,7 @@ function main_polis_dri(case::String; correlation_method::Symbol)
 
     # drop any rows that have missing or zero votes
     df = filter(r -> r.vote in (-1, 1), votes_df)
+    # df = votes_df
 
     if nrow(df) == 0
         throw(ArgumentError("No data for either considerations or preferences. Exiting."))
@@ -198,7 +199,7 @@ function main_polis_dri(case::String; correlation_method::Symbol)
         unstacked = unstack(df, :comment_id, :voter_id, :vote, combine=last)
         sort!(unstacked, :comment_id)
 
-        # Drop comment ID. Replace missing values with 0.
+        # Drop comment ID.
         select(unstacked, Not(:comment_id))
     end
 
@@ -211,9 +212,9 @@ function main_polis_dri(case::String; correlation_method::Symbol)
     consider_counts = [ sum( ( coalesce.(df_wide[:,j], 0) .* (tags .== "c") ) .!== 0) for j in 1:ncol(df_wide)]
     pref_counts = [ sum( ( coalesce.(df_wide[:,j], 0) .* (tags .== "p") ) .!== 0) for j in 1:ncol(df_wide)]
 
-    # get indices of users that have at least min_answers preferences and min_answers considerations
-    consider_indices = findall(consider_counts .>= min_answers)
-    pref_indices = findall(pref_counts .>= min_answers)
+    # get indices of users that have at least threshold preferences and threshold considerations
+    consider_indices = findall(consider_counts .>= threshold)
+    pref_indices = findall(pref_counts .>= threshold)
     usabel_indices = intersect(consider_indices, pref_indices)
 
     consider_mat = df_wide[findall(tags .== "c"), usabel_indices] 
@@ -263,7 +264,7 @@ function main_polis_dri(case::String; correlation_method::Symbol)
     CSV.write("$outdir/DRIInd_polis-$(correlation_method).csv", DRIInd)
 
     # --- Make one scatter plot for the entire group
-    p = dri_plot(IC, :Q1, :R1, "DRI plots: pol.is $case ($correlation_method)", group_DRI)
+    p = dri_plot(IC, :Q1, :R1, "DRI plots: pol.is $case ($correlation_method, threshold=$threshold)", group_DRI)
     savefig(p, "$outdir/Figures/polis_dri_plot-$(correlation_method).png")
     println("Wrote .csv and .png files to $outdir/")
 end
@@ -271,8 +272,6 @@ end
 ###############################################################################
 # 3) Run it
 ###############################################################################
-
-min_answers = 5
 
 if abspath(PROGRAM_FILE) == @__FILE__
 
@@ -291,9 +290,18 @@ if abspath(PROGRAM_FILE) == @__FILE__
         correlation_method = Symbol(ARGS[2])
     end
 
-    @show correlation_method
 
+    threshold=5
+    if length(ARGS) > 2
+        # parse integer
+        threshold = parse(Int, ARGS[3])
+    end
+
+
+    @show case
+    @show correlation_method
+    @show threshold
 
     # Example usage: adapt to your actual filenames
-    main_polis_dri(case; correlation_method=correlation_method)
+    main_polis_dri(case; correlation_method=correlation_method, threshold=threshold)
 end
