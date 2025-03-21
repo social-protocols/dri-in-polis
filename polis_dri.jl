@@ -109,13 +109,13 @@ end
 Given a DataFrame `df` whose columns are participants, returns a DataFrame of pairwise
 correlations with columns (Var1, Var2, Freq). The correlation is chosen by `method`.
 """
-function pairwise_correlation(df::DataFrame; method=:spearman)
-    cols = names(df)
+function pairwise_correlation(mat::DataFrame; method=:spearman)
+    cols = names(mat)
     result = DataFrame(Var1 = String[], Var2 = String[], Freq = Union{Missing,Float64}[])
     for i in 1:length(cols)
         for j in 1:(i-1)
-            col_i = df[!, cols[i]]
-            col_j = df[!, cols[j]]
+            col_i = mat[!, cols[i]]
+            col_j = mat[!, cols[j]]
             cval = correlation(col_i, col_j, method)
             push!(result, (string(cols[i]), string(cols[j]), cval))
         end

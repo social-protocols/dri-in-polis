@@ -173,7 +173,6 @@ function main()
 
     # Loop over each study-case
     for row in eachrow(StudyU)
-        # row = StudyU[1,:]
 
         study = row.StudyID
         case = row.CaseID
