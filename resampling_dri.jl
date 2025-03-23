@@ -226,6 +226,13 @@ if abspath(PROGRAM_FILE) == @__FILE__
     for case in cases
         if mode == "original"
             # Original analysis for each case/stage combination
+            # Create side-by-side plots
+            p = plot(layout=(1,2), size=(1200,500), 
+                    plot_title_fontsize=12,
+                    margin=20Plots.mm,
+                    subplot_titles=["Stage 1 (PRE)", "Stage 2 (POST)"])
+            
+            # Process and plot each stage
             for stage in [1, 2]
                 data_filtered = filter(r -> r.CaseID == case && r.StageID == stage, data)
                 if nrow(data_filtered) == 0
@@ -256,23 +263,30 @@ if abspath(PROGRAM_FILE) == @__FILE__
                 p_value = sum(dri_values .>= observed_dri) / length(dri_values)
                 push!(results, (string(case), case_name, Int64(stage), stage_name, observed_dri, p_value))
                 
-                # Create and save histogram
-                p = histogram(dri_values, 
-                            title="Distribution of Random DRI Values\nCase $case ($case_name), Stage $stage ($stage_name)",
-                            xlabel="DRI",
-                            ylabel="Count",
-                            legend=false)
-                vline!([observed_dri], color=:red, label="Observed DRI")
+                # Plot histogram for this stage
+                histogram!(p[stage], [d[2] for d in dri_values], 
+                    alpha=1.0,
+                    legend=false,
+                    title="Distribution of Random DRI Values\nCase $case ($case_name) $stage_name",
+                    titlefontsize=10,
+                    margin=10Plots.mm)
                 
-                xlims = Plots.xlims(p)
-                ylims = Plots.ylims(p)
+                vline!(p[stage], [observed_dri], color=:red, label="Observed DRI")
+                
+                xlabel!(p[stage], "DRI", fontsize=10, margin=10Plots.mm)
+                ylabel!(p[stage], "Count", fontsize=10, margin=10Plots.mm)
+                
+                # Add DRI value and p-value annotation
+                xlims = Plots.xlims(p[stage])
+                ylims = Plots.ylims(p[stage])
                 x_ann = xlims[1] + 0.1 * (xlims[2] - xlims[1])
                 y_ann = ylims[1] + 0.9 * (ylims[2] - ylims[1])
-                annotate!(p, x_ann, y_ann, text("DRI = $(round(observed_dri, digits=2))\np = $(round(p_value, digits=3))", :red, 13))
-                
-                mkpath("Output/resampling")
-                savefig(p, "Output/resampling/dri_distribution_case$(case)_stage$(stage).png")
+                annotate!(p[stage], x_ann, y_ann, text("DRI = $(round(observed_dri, digits=2))\np = $(round(p_value, digits=3))", :red, 13, :left))
             end
+            
+            # Save plot
+            mkpath("Output/resampling")
+            savefig(p, "Output/resampling/dri_distribution_case$(case).png")
         else
             # Delta analysis for each case
             data_pre = filter(r -> r.CaseID == case && r.StageID == 1, data)
