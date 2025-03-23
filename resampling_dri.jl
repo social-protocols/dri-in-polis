@@ -159,6 +159,7 @@ function remove_all_missing!(df::DataFrame)
 end
 
 function pairwise_spearman(df::DataFrame)
+    global rejected_pairs
     cols = names(df)
     result = DataFrame(Var1 = String[], Var2 = String[], Freq = Union{Missing, Float64}[])
     for i in 1:length(cols)
@@ -177,6 +178,10 @@ function pairwise_spearman(df::DataFrame)
                     corr_val = missing
                 else
                     corr_val = cor(rx, ry)
+                    if isnan(corr_val)
+                        corr_val = missing
+                        rejected_pairs += 1
+                    end
                 end
             end
             push!(result, (cols[i], cols[j], corr_val))
@@ -223,6 +228,9 @@ if abspath(PROGRAM_FILE) == @__FILE__
         PValue = Float64[]
     )
 
+    # Global counter for rejected pairs
+    rejected_pairs = 0
+
     # Loop over all cases
     for case in cases
         # Create side-by-side plots
@@ -242,6 +250,8 @@ if abspath(PROGRAM_FILE) == @__FILE__
             case_name = data_filtered[1, :Case]
             stage_name = stage == 1 ? "PRE" : "POST"
             
+            println("\nProcessing Case $case ($case_name) - Stage $stage ($stage_name)")
+            
             # Calculate original DRI
             F_df, Pref_df = prepare_data(data_filtered)
             IC_observed = calculate_IC(F_df, Pref_df)
@@ -254,11 +264,11 @@ if abspath(PROGRAM_FILE) == @__FILE__
                     Random.seed!(i)
                     F_random, Pref_random = randomize_tags(F_df, Pref_df, "method1")
                     IC_random = calculate_IC(F_random, Pref_random)
-                    if IC_random !== nothing
-                        random_dri = calculate_dri(IC_random)
-                        push!(random_dri_values, random_dri)
-                    end
+                    random_dri = calculate_dri(IC_random)
+                    push!(random_dri_values, random_dri)
+                    print("\rIteration $i/$n_iterations")
                 end
+                println()  # New line after progress
                 p_value = sum(random_dri_values .>= observed_dri) / length(random_dri_values)
             else  # method2
                 dri_tuples = Tuple{Float64,Float64}[]
@@ -270,12 +280,13 @@ if abspath(PROGRAM_FILE) == @__FILE__
                     IC_random = calculate_IC(F_random, Pref_random)
                     random_dri = calculate_dri(IC_random)
                     push!(dri_tuples, (resampled_dri, random_dri))
+                    print("\rIteration $i/$n_iterations")
                 end
+                println()  # New line after progress
                 p_value = count(d -> abs(d[2]) >= abs(d[1]), dri_tuples) / length(dri_tuples)
                 mean_resampled_dri = mean([d[1] for d in dri_tuples])
 
                 random_dri_values = [d[2] for d in dri_tuples]
-                @show observed_dri, mean_resampled_dri
             end
 
             push!(results, (string(case), case_name, Int64(stage), stage_name, observed_dri, p_value))
@@ -291,7 +302,8 @@ if abspath(PROGRAM_FILE) == @__FILE__
                 stroke=:none)
             
             vline!(p[stage], [observed_dri], color=:red, label="Observed DRI")
-            vline!(p[stage], [mean(random_dri_values)], color=:blue, label="Mean Random DRI")
+            mean_random = mean(skipmissing(random_dri_values))
+            vline!(p[stage], [mean_random], color=:blue, label="Mean Random DRI")
             
             xlabel!(p[stage], "DRI", fontsize=10, margin=10Plots.mm)
             ylabel!(p[stage], "Count", fontsize=10, margin=10Plots.mm)
@@ -302,7 +314,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
             x_ann = xlims[1] + 0.1 * (xlims[2] - xlims[1])
             y_ann = ylims[1] + 0.9 * (ylims[2] - ylims[1])
             annotate!(p[stage], x_ann, y_ann, text("DRI = $(round(observed_dri, digits=2))", :red, 13, :left))
-            annotate!(p[stage], x_ann, y_ann - 0.05 * (ylims[2] - ylims[1]), text("Mean = $(round(mean(random_dri_values), digits=2))", :blue, 13, :left))
+            annotate!(p[stage], x_ann, y_ann - 0.05 * (ylims[2] - ylims[1]), text("Mean = $(round(mean_random, digits=2))", :blue, 13, :left))
             annotate!(p[stage], x_ann, y_ann - 0.1 * (ylims[2] - ylims[1]), text("p = $(round(p_value, digits=3))", :black, 13, :left))
         end
         
@@ -330,7 +342,8 @@ if abspath(PROGRAM_FILE) == @__FILE__
     println("\nAggregate Results:")
     println("Number of datasets: ", k)
     println("Fisher's statistic: ", T)
-    println("Aggregate p-value using Fisher's method: ", combined_p)
+    println("Aggregate p-value ($mode) using Fisher's method: ", combined_p)
+    println("Rejected pairs (zero variance): ", rejected_pairs)
     
     # Save results to CSV
     output_file = "Output/resampling/dri_results_$(mode).csv"
