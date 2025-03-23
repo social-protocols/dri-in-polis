@@ -52,21 +52,24 @@ Returns: Tuple of (F_df, Pref_df) DataFrames with randomly assigned rows
 """
 function randomize_tags(F_df::DataFrame, Pref_df::DataFrame)
     # Combine all rows
-    all_rows = vcat(F_df, Pref_df)
-    
+    # all_rows = vcat(F_df, Pref_df)
     # Randomly assign rows back to F and Pref
-    n_rows = nrow(all_rows)
-    n_F_rows = nrow(F_df)
+
+    n_rows = nrow(F_df)
+    n_F_rows = n_rows - nrow(Pref_df)
+
     random_indices = randperm(n_rows)
+
     F_indices = random_indices[1:n_F_rows]
     Pref_indices = random_indices[n_F_rows+1:end]
     
     # Create new DataFrames with randomly assigned rows
-    F_random = all_rows[F_indices, :]
-    Pref_random = all_rows[Pref_indices, :]
+    F_random = F_df[F_indices, :]
+    Pref_random = F_df[Pref_indices, :]
     
     return F_random, Pref_random
 end
+
 
 """
     calculate_IC(F_df::DataFrame, Pref_df::DataFrame)
@@ -181,16 +184,16 @@ end
 
 # Example usage
 if abspath(PROGRAM_FILE) == @__FILE__
-    if length(ARGS) < 2
-        println("Usage: julia resampling_dri.jl [MODE] [ITERATIONS]")
+    if length(ARGS) < 1
+        println("Usage: julia resampling_dri.jl [ITERATIONS] [MODE] ")
+        println("  ITERATIONS: number of random iterations (default=1000)")
         println("  MODE: 'original' or 'delta' (default='original')")
-        println("  ITERATIONS: number of random iterations (default=100)")
         exit(1)
     end
 
     # Parse command line arguments
-    mode = length(ARGS) > 0 ? ARGS[1] : "original"
-    n_iterations = length(ARGS) > 1 ? parse(Int, ARGS[2]) : 100
+    n_iterations = length(ARGS) > 0 ? parse(Int, ARGS[1]) : 1000
+    mode = length(ARGS) > 1 ? ARGS[2] : "original"
 
     if !(mode in ["original", "delta"])
         println("Error: MODE must be either 'original' or 'delta'")
@@ -245,22 +248,31 @@ if abspath(PROGRAM_FILE) == @__FILE__
                 
                 # Calculate original DRI
                 F_df, Pref_df = prepare_data(data_filtered)
-                IC_original = calculate_IC(F_df, Pref_df)
-                observed_dri = calculate_dri(IC_original)
-                
+                IC_observed = calculate_IC(F_df, Pref_df)
+                observed_dri = calculate_dri(IC_observed)
+
                 # Run random DRI calculations
-                dri_values = Float64[]
+                dri_values = Tuple{Float64,Float64}[]
                 for i in 1:n_iterations
                     Random.seed!(i)
                     F_random, Pref_random = randomize_tags(F_df, Pref_df)
+
+                    IC_control = calculate_IC(F_random, Pref_df)
+                    resampled_dri = calculate_dri(IC_control)
+
                     IC_random = calculate_IC(F_random, Pref_random)
-                    if IC_random !== nothing
-                        dri = calculate_dri(IC_random)
-                        push!(dri_values, dri)
-                    end
+                    random_dri = calculate_dri(IC_random)
+                    push!(dri_values, (resampled_dri, random_dri))
                 end
                 
-                p_value = sum(dri_values .>= observed_dri) / length(dri_values)
+                # p_value = sum(dri_values .>= observed_dri) / length(dri_values)
+
+                p_value = count(d -> abs(d[2]) >= abs(d[1]), dri_values) / length(dri_values)
+
+                mean_resampled_dri = mean([d[1] for d in dri_values])
+
+                @show observed_dri, mean_resampled_dri
+
                 push!(results, (string(case), case_name, Int64(stage), stage_name, observed_dri, p_value))
                 
                 # Plot histogram for this stage

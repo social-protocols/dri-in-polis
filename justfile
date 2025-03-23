@@ -12,5 +12,5 @@ run-polis CASE="vtaiwan.uberx" METHOD="" THRESHOLD="":
    julia --project polis_dri.jl {{CASE}} {{METHOD}} {{THRESHOLD}}
 
 
-run-random mode="delta" N="1000": 
-   julia --project random_dri.jl  {{mode}} {{N}}
+run-resampling N="" mode="" : 
+   julia --project resampling_dri.jl {{N}} {{mode}}

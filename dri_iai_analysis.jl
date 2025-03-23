@@ -84,10 +84,6 @@ function calculate_changes(results::DataFrame)
     for case in unique(results.CaseID)
         case_data = filter(r -> r.CaseID == case, results)
         for i in 2:nrow(case_data)
-            # Skip if starting DRI is negative
-            if case_data[i-1, :DRI] < 0
-                continue
-            end
             
             # Calculate absolute changes
             dri_change = case_data[i, :DRI] - case_data[i-1, :DRI]
