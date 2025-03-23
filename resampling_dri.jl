@@ -187,7 +187,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
     if length(ARGS) < 1
         println("Usage: julia resampling_dri.jl [ITERATIONS] [MODE] ")
         println("  ITERATIONS: number of random iterations (default=1000)")
-        println("  MODE: 'original' or 'delta' (default='original')")
+        println("  MODE: 'original' or 'method2' (default='original')")
         exit(1)
     end
 
@@ -195,8 +195,8 @@ if abspath(PROGRAM_FILE) == @__FILE__
     n_iterations = length(ARGS) > 0 ? parse(Int, ARGS[1]) : 1000
     mode = length(ARGS) > 1 ? ARGS[2] : "original"
 
-    if !(mode in ["original", "delta"])
-        println("Error: MODE must be either 'original' or 'delta'")
+    if !(mode in ["original", "method2"])
+        println("Error: MODE must be either 'original' or 'method2'")
         exit(1)
     end
 
@@ -207,160 +207,86 @@ if abspath(PROGRAM_FILE) == @__FILE__
     cases = unique(data.CaseID)
     
     # Store results
-    if mode == "original"
-        results = DataFrame(
-            Case = String[],
-            CaseName = String[],
-            Stage = Int[],
-            StageName = String[],
-            DRI = Float64[],
-            PValue = Float64[]
-        )
-    else
-        results = DataFrame(
-            Case = String[],
-            CaseName = String[],
-            DeltaDRI = Float64[],
-            PValue = Float64[]
-        )
-    end
+    results = DataFrame(
+        Case = String[],
+        CaseName = String[],
+        Stage = Int[],
+        StageName = String[],
+        DRI = Float64[],
+        PValue = Float64[]
+    )
 
     # Loop over all cases
     for case in cases
-        if mode == "original"
-            # Original analysis for each case/stage combination
-            # Create side-by-side plots
-            p = plot(layout=(1,2), size=(1200,500), 
-                    plot_title_fontsize=12,
-                    margin=20Plots.mm,
-                    subplot_titles=["Stage 1 (PRE)", "Stage 2 (POST)"])
-            
-            # Process and plot each stage
-            for stage in [1, 2]
-                data_filtered = filter(r -> r.CaseID == case && r.StageID == stage, data)
-                if nrow(data_filtered) == 0
-                    println("Warning: No data found for case $case and stage $stage")
-                    continue
-                end
-                
-                case_name = data_filtered[1, :Case]
-                stage_name = stage == 1 ? "PRE" : "POST"
-                
-                # Calculate original DRI
-                F_df, Pref_df = prepare_data(data_filtered)
-                IC_observed = calculate_IC(F_df, Pref_df)
-                observed_dri = calculate_dri(IC_observed)
-
-                # Run random DRI calculations
-                dri_values = Tuple{Float64,Float64}[]
-                for i in 1:n_iterations
-                    Random.seed!(i)
-                    F_random, Pref_random = randomize_tags(F_df, Pref_df)
-
-                    IC_control = calculate_IC(F_random, Pref_df)
-                    resampled_dri = calculate_dri(IC_control)
-
-                    IC_random = calculate_IC(F_random, Pref_random)
-                    random_dri = calculate_dri(IC_random)
-                    push!(dri_values, (resampled_dri, random_dri))
-                end
-                
-                # p_value = sum(dri_values .>= observed_dri) / length(dri_values)
-
-                p_value = count(d -> abs(d[2]) >= abs(d[1]), dri_values) / length(dri_values)
-
-                mean_resampled_dri = mean([d[1] for d in dri_values])
-
-                @show observed_dri, mean_resampled_dri
-
-                push!(results, (string(case), case_name, Int64(stage), stage_name, observed_dri, p_value))
-                
-                # Plot histogram for this stage
-                histogram!(p[stage], [d[2] for d in dri_values], 
-                    alpha=1.0,
-                    legend=false,
-                    title="Distribution of Random DRI Values\nCase $case ($case_name) $stage_name",
-                    titlefontsize=10,
-                    margin=10Plots.mm)
-                
-                vline!(p[stage], [observed_dri], color=:red, label="Observed DRI")
-                
-                xlabel!(p[stage], "DRI", fontsize=10, margin=10Plots.mm)
-                ylabel!(p[stage], "Count", fontsize=10, margin=10Plots.mm)
-                
-                # Add DRI value and p-value annotation
-                xlims = Plots.xlims(p[stage])
-                ylims = Plots.ylims(p[stage])
-                x_ann = xlims[1] + 0.1 * (xlims[2] - xlims[1])
-                y_ann = ylims[1] + 0.9 * (ylims[2] - ylims[1])
-                annotate!(p[stage], x_ann, y_ann, text("DRI = $(round(observed_dri, digits=2))\np = $(round(p_value, digits=3))", :red, 13, :left))
-            end
-            
-            # Save plot
-            mkpath("Output/resampling")
-            savefig(p, "Output/resampling/dri_distribution_case$(case).png")
-        else
-            # Delta analysis for each case
-            data_pre = filter(r -> r.CaseID == case && r.StageID == 1, data)
-            data_post = filter(r -> r.CaseID == case && r.StageID == 2, data)
-            
-            if nrow(data_pre) == 0 || nrow(data_post) == 0
-                println("Warning: Missing data for case $case")
+        # Original analysis for each case/stage combination
+        # Create side-by-side plots
+        p = plot(layout=(1,2), size=(1200,500), 
+                plot_title_fontsize=12,
+                margin=20Plots.mm,
+                subplot_titles=["Stage 1 (PRE)", "Stage 2 (POST)"])
+        
+        # Process and plot each stage
+        for stage in [1, 2]
+            data_filtered = filter(r -> r.CaseID == case && r.StageID == stage, data)
+            if nrow(data_filtered) == 0
+                println("Warning: No data found for case $case and stage $stage")
                 continue
             end
             
-            case_name = data_pre[1, :Case]
+            case_name = data_filtered[1, :Case]
+            stage_name = stage == 1 ? "PRE" : "POST"
             
-            # Calculate original DRIs
-            F_df_pre, Pref_df_pre = prepare_data(data_pre)
-            F_df_post, Pref_df_post = prepare_data(data_post)
-            IC_pre = calculate_IC(F_df_pre, Pref_df_pre)
-            IC_post = calculate_IC(F_df_post, Pref_df_post)
-            observed_dri_pre = calculate_dri(IC_pre)
-            observed_dri_post = calculate_dri(IC_post)
-            observed_delta = observed_dri_post - observed_dri_pre
-            
-            # Run random delta calculations
-            delta_values = Float64[]
+            # Calculate original DRI
+            F_df, Pref_df = prepare_data(data_filtered)
+            IC_observed = calculate_IC(F_df, Pref_df)
+            observed_dri = calculate_dri(IC_observed)
+
+            # Run random DRI calculations
+            dri_values = Tuple{Float64,Float64}[]
             for i in 1:n_iterations
                 Random.seed!(i)
-                
-                # Randomize both stages
-                F_random_pre, Pref_random_pre = randomize_tags(F_df_pre, Pref_df_pre)
-                F_random_post, Pref_random_post = randomize_tags(F_df_post, Pref_df_post)
-                
-                IC_random_pre = calculate_IC(F_random_pre, Pref_random_pre)
-                IC_random_post = calculate_IC(F_random_post, Pref_random_post)
-                
-                if IC_random_pre !== nothing && IC_random_post !== nothing
-                    dri_pre = calculate_dri(IC_random_pre)
-                    dri_post = calculate_dri(IC_random_post)
-                    push!(delta_values, dri_post - dri_pre)
-                end
+                F_random, Pref_random = randomize_tags(F_df, Pref_df)
+
+                IC_control = calculate_IC(F_random, Pref_df)
+                resampled_dri = calculate_dri(IC_control)
+
+                IC_random = calculate_IC(F_random, Pref_random)
+                random_dri = calculate_dri(IC_random)
+                push!(dri_values, (resampled_dri, random_dri))
             end
             
-            # Calculate two-sided p-value (proportion of absolute random values >= absolute observed value)
-            p_value = sum(abs.(delta_values) .>= abs(observed_delta)) / length(delta_values)
+            p_value = count(d -> abs(d[2]) >= abs(d[1]), dri_values) / length(dri_values)
+
+            mean_resampled_dri = mean([d[1] for d in dri_values])
+
+            @show observed_dri, mean_resampled_dri
+
+            push!(results, (string(case), case_name, Int64(stage), stage_name, observed_dri, p_value))
             
-            push!(results, (string(case), case_name, observed_delta, p_value))
+            # Plot histogram for this stage
+            histogram!(p[stage], [d[2] for d in dri_values], 
+                alpha=1.0,
+                legend=false,
+                title="Distribution of Random DRI Values\nCase $case ($case_name) $stage_name",
+                titlefontsize=10,
+                margin=10Plots.mm)
             
-            # Create and save histogram
-            p = histogram(delta_values, 
-                        title="Distribution of Random DRI Deltas\nCase $case ($case_name)",
-                        xlabel="Delta DRI",
-                        ylabel="Count",
-                        legend=false)
-            vline!([observed_delta], color=:red, label="Observed Delta")
+            vline!(p[stage], [observed_dri], color=:red, label="Observed DRI")
             
-            xlims = Plots.xlims(p)
-            ylims = Plots.ylims(p)
+            xlabel!(p[stage], "DRI", fontsize=10, margin=10Plots.mm)
+            ylabel!(p[stage], "Count", fontsize=10, margin=10Plots.mm)
+            
+            # Add DRI value and p-value annotation
+            xlims = Plots.xlims(p[stage])
+            ylims = Plots.ylims(p[stage])
             x_ann = xlims[1] + 0.1 * (xlims[2] - xlims[1])
             y_ann = ylims[1] + 0.9 * (ylims[2] - ylims[1])
-            annotate!(p, x_ann, y_ann, text("Delta = $(round(observed_delta, digits=2))\np = $(round(p_value, digits=3))", :red, 13))
-            
-            mkpath("Output/resampling")
-            savefig(p, "Output/resampling/dri_delta_distribution_case$(case).png")
+            annotate!(p[stage], x_ann, y_ann, text("DRI = $(round(observed_dri, digits=2))\np = $(round(p_value, digits=3))", :red, 13, :left))
         end
+        
+        # Save plot
+        mkpath("Output/resampling")
+        savefig(p, "Output/resampling/dri_distribution_case$(case).png")
     end
     
     # Calculate aggregate p-value using Fisher's method
@@ -385,6 +311,6 @@ if abspath(PROGRAM_FILE) == @__FILE__
     println("Aggregate p-value using Fisher's method: ", combined_p)
     
     # Save results to CSV
-    output_file = mode == "original" ? "Output/resampling/dri_results.csv" : "Output/resampling/dri_delta_results.csv"
+    output_file = "Output/resampling/dri_results.csv"
     CSV.write(output_file, results)
 end 
