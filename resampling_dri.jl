@@ -225,7 +225,6 @@ if abspath(PROGRAM_FILE) == @__FILE__
 
     # Loop over all cases
     for case in cases
-        # Original analysis for each case/stage combination
         # Create side-by-side plots
         p = plot(layout=(1,2), size=(1200,500), 
                 plot_title_fontsize=12,
@@ -287,9 +286,12 @@ if abspath(PROGRAM_FILE) == @__FILE__
                 legend=false,
                 title="Distribution of Random DRI Values\nCase $case ($case_name) $stage_name",
                 titlefontsize=10,
-                margin=10Plots.mm)
+                margin=10Plots.mm,
+                bins=:auto,
+                stroke=:none)
             
             vline!(p[stage], [observed_dri], color=:red, label="Observed DRI")
+            vline!(p[stage], [mean(random_dri_values)], color=:blue, label="Mean Random DRI")
             
             xlabel!(p[stage], "DRI", fontsize=10, margin=10Plots.mm)
             ylabel!(p[stage], "Count", fontsize=10, margin=10Plots.mm)
@@ -299,7 +301,9 @@ if abspath(PROGRAM_FILE) == @__FILE__
             ylims = Plots.ylims(p[stage])
             x_ann = xlims[1] + 0.1 * (xlims[2] - xlims[1])
             y_ann = ylims[1] + 0.9 * (ylims[2] - ylims[1])
-            annotate!(p[stage], x_ann, y_ann, text("DRI = $(round(observed_dri, digits=2))\np = $(round(p_value, digits=3))", :red, 13, :left))
+            annotate!(p[stage], x_ann, y_ann, text("DRI = $(round(observed_dri, digits=2))", :red, 13, :left))
+            annotate!(p[stage], x_ann, y_ann - 0.05 * (ylims[2] - ylims[1]), text("Mean = $(round(mean(random_dri_values), digits=2))", :blue, 13, :left))
+            annotate!(p[stage], x_ann, y_ann - 0.1 * (ylims[2] - ylims[1]), text("p = $(round(p_value, digits=3))", :black, 13, :left))
         end
         
         # Save plot
