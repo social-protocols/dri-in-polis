@@ -45,27 +45,34 @@ function prepare_data(data::DataFrame)
 end
 
 """
-    randomize_tags(F_df::DataFrame, Pref_df::DataFrame)
+    randomize_tags(F_df::DataFrame, Pref_df::DataFrame, method::String="method1")
 
 Randomly reassigns rows between F_df and Pref_df while maintaining the original number of rows in each.
 Returns: Tuple of (F_df, Pref_df) DataFrames with randomly assigned rows
 """
-function randomize_tags(F_df::DataFrame, Pref_df::DataFrame)
-    # Combine all rows
-    # all_rows = vcat(F_df, Pref_df)
-    # Randomly assign rows back to F and Pref
-
-    n_rows = nrow(F_df)
-    n_F_rows = n_rows - nrow(Pref_df)
-
-    random_indices = randperm(n_rows)
-
-    F_indices = random_indices[1:n_F_rows]
-    Pref_indices = random_indices[n_F_rows+1:end]
-    
-    # Create new DataFrames with randomly assigned rows
-    F_random = F_df[F_indices, :]
-    Pref_random = F_df[Pref_indices, :]
+function randomize_tags(F_df::DataFrame, Pref_df::DataFrame, method::String="method1")
+    if method == "method1"
+        # Combine all rows
+        all_rows = vcat(F_df, Pref_df)
+        # Randomly assign rows back to F and Pref
+        n_rows = nrow(all_rows)
+        n_F_rows = nrow(F_df)
+        random_indices = randperm(n_rows)
+        F_indices = random_indices[1:n_F_rows]
+        Pref_indices = random_indices[n_F_rows+1:end]
+        # Create new DataFrames with randomly assigned rows
+        F_random = all_rows[F_indices, :]
+        Pref_random = all_rows[Pref_indices, :]
+    else  # method2
+        n_rows = nrow(F_df)
+        n_F_rows = n_rows - nrow(Pref_df)
+        random_indices = randperm(n_rows)
+        F_indices = random_indices[1:n_F_rows]
+        Pref_indices = random_indices[n_F_rows+1:end]
+        # Create new DataFrames with randomly assigned rows
+        F_random = F_df[F_indices, :]
+        Pref_random = F_df[Pref_indices, :]
+    end
     
     return F_random, Pref_random
 end
@@ -187,16 +194,16 @@ if abspath(PROGRAM_FILE) == @__FILE__
     if length(ARGS) < 1
         println("Usage: julia resampling_dri.jl [ITERATIONS] [MODE] ")
         println("  ITERATIONS: number of random iterations (default=1000)")
-        println("  MODE: 'original' or 'method2' (default='original')")
+        println("  MODE: 'method1' or 'method2' (default='method1')")
         exit(1)
     end
 
     # Parse command line arguments
     n_iterations = length(ARGS) > 0 ? parse(Int, ARGS[1]) : 1000
-    mode = length(ARGS) > 1 ? ARGS[2] : "original"
+    mode = length(ARGS) > 1 ? ARGS[2] : "method1"
 
-    if !(mode in ["original", "method2"])
-        println("Error: MODE must be either 'original' or 'method2'")
+    if !(mode in ["method1", "method2"])
+        println("Error: MODE must be either 'method1' or 'method2'")
         exit(1)
     end
 
@@ -242,29 +249,40 @@ if abspath(PROGRAM_FILE) == @__FILE__
             observed_dri = calculate_dri(IC_observed)
 
             # Run random DRI calculations
-            dri_values = Tuple{Float64,Float64}[]
-            for i in 1:n_iterations
-                Random.seed!(i)
-                F_random, Pref_random = randomize_tags(F_df, Pref_df)
+            random_dri_values = Float64[]
+            if mode == "method1"
+                for i in 1:n_iterations
+                    Random.seed!(i)
+                    F_random, Pref_random = randomize_tags(F_df, Pref_df, "method1")
+                    IC_random = calculate_IC(F_random, Pref_random)
+                    if IC_random !== nothing
+                        random_dri = calculate_dri(IC_random)
+                        push!(random_dri_values, random_dri)
+                    end
+                end
+                p_value = sum(random_dri_values .>= observed_dri) / length(random_dri_values)
+            else  # method2
+                dri_tuples = Tuple{Float64,Float64}[]
+                for i in 1:n_iterations
+                    Random.seed!(i)
+                    F_random, Pref_random = randomize_tags(F_df, Pref_df, "method2")
+                    IC_control = calculate_IC(F_random, Pref_df)
+                    resampled_dri = calculate_dri(IC_control)
+                    IC_random = calculate_IC(F_random, Pref_random)
+                    random_dri = calculate_dri(IC_random)
+                    push!(dri_tuples, (resampled_dri, random_dri))
+                end
+                p_value = count(d -> abs(d[2]) >= abs(d[1]), dri_tuples) / length(dri_tuples)
+                mean_resampled_dri = mean([d[1] for d in dri_tuples])
 
-                IC_control = calculate_IC(F_random, Pref_df)
-                resampled_dri = calculate_dri(IC_control)
-
-                IC_random = calculate_IC(F_random, Pref_random)
-                random_dri = calculate_dri(IC_random)
-                push!(dri_values, (resampled_dri, random_dri))
+                random_dri_values = [d[2] for d in dri_tuples]
+                @show observed_dri, mean_resampled_dri
             end
-            
-            p_value = count(d -> abs(d[2]) >= abs(d[1]), dri_values) / length(dri_values)
-
-            mean_resampled_dri = mean([d[1] for d in dri_values])
-
-            @show observed_dri, mean_resampled_dri
 
             push!(results, (string(case), case_name, Int64(stage), stage_name, observed_dri, p_value))
             
             # Plot histogram for this stage
-            histogram!(p[stage], [d[2] for d in dri_values], 
+            histogram!(p[stage], random_dri_values, 
                 alpha=1.0,
                 legend=false,
                 title="Distribution of Random DRI Values\nCase $case ($case_name) $stage_name",
@@ -286,7 +304,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
         
         # Save plot
         mkpath("Output/resampling")
-        savefig(p, "Output/resampling/dri_distribution_case$(case).png")
+        savefig(p, "Output/resampling/dri_distribution_case$(case)_$(mode).png")
     end
     
     # Calculate aggregate p-value using Fisher's method
@@ -311,6 +329,6 @@ if abspath(PROGRAM_FILE) == @__FILE__
     println("Aggregate p-value using Fisher's method: ", combined_p)
     
     # Save results to CSV
-    output_file = "Output/resampling/dri_results.csv"
+    output_file = "Output/resampling/dri_results_$(mode).csv"
     CSV.write(output_file, results)
 end 
