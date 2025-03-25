@@ -71,86 +71,75 @@ mkpath(outdir)
 
 
 """
-    dri_plot(data::DataFrame, x::Symbol, y::Symbol, title_str::String, suffix::String, DRI::Float64)
+    dri_plot(p::Plots.Subplot, xdata::Vector, ydata::Vector, title_str::String, dri::Float64)
 
-Creates a plot similar to the ggplot2 version:
-  - Jittered scatter points (with jitter added manually),
-  - Limits set to (-1.1, 1.1) for both axes,
-  - White reference lines (diagonal, horizontal at 0, vertical at 0),
-  - A filled 2D density contour (using KernelDensity.jl),
-  - An overlaid contour line,
-  - Custom axis labels and a title,
-  - And a red annotation showing the rounded DRI value.
+Creates a single DRI plot in the given subplot with:
+  - Scatter points with jitter
+  - Reference lines (diagonal, horizontal at 0, vertical at 0)
+  - DRI annotation
+  - Custom axis labels and title
 """
-function dri_plot(data::DataFrame, x::Symbol, y::Symbol, title_str::String, suffix::String, DRI::Float64)
-    # Extract the x and y values
-    xdata = data[!, x]
-    ydata = data[!, y]
-
+function dri_plot(p::Plots.Subplot, xdata::Vector, ydata::Vector, title_str::String, dri::Float64)
     # Add jitter (similar to geom_jitter with width/height = 0.02)
     jitter_width = 0.02
     x_jitter = xdata .+ jitter_width .* randn(length(xdata))
     y_jitter = ydata .+ jitter_width .* randn(length(ydata))
 
-    # Start a scatter plot (no legend) with 100 DPI
-    p = scatter(x_jitter, y_jitter,
+    # Create the scatter plot
+    scatter!(p, x_jitter, y_jitter,
         markersize = 2,
         markercolor = RGBA(0.1, 0, 1, 0.6),
         label = "",
         xlims = (-1.1, 1.1), ylims = (-1.1, 1.1),
         legend = false,
-        dpi = 100)
-
-    # Remove grid lines
-    plot!(p, grid = false)
-
-    # Add reference lines:
-    # Diagonal line y = x (white)
+        title = title_str,
+        titlefontsize = 10,
+        grid = false)
+    
+    # Add reference lines
     plot!(p, [-1.1, 1.1], [-1.1, 1.1], color = :black, lw = 1, label = "")
-    # Horizontal line at y = 0 and vertical line at x = 0 (black)
     hline!(p, [0], color = :black, lw = 1, label = "")
     vline!(p, [0], color = :black, lw = 1, label = "")
-
-    # Remove missing values from the original data (for density estimation)
-    mask = .!ismissing.(xdata) .& .!ismissing.(ydata)
-    xdata_clean = xdata[mask]
-    ydata_clean = ydata[mask]
     
-    # If we have at least two points, perform KDE and add contours.
-    # if length(xdata_clean) > 1
-    #     # Build a 2 x n matrix: each column is an observation.
-    #     kde_data = hcat(xdata_clean, ydata_clean) 
-    #     kd = kde(kde_data)
-    #     # Only add contours if the grid vectors are not scalars.
-    #     if length(kd.x[1]) > 1 && length(kd.x[2]) > 1
-    #         contourf!(p, kd.x[1], kd.x[2], kd.density,
-    #             levels = 10,
-    #             alpha = 0.3,
-    #             legend = false)
-    #         contour!(p, kd.x[1], kd.x[2], kd.density,
-    #             levels = 10,
-    #             lw = 0.5,
-    #             linecolor = :black,
-    #             legend = false)
-    #     end
-    # end
-
-    # Set axis labels and title
+    # Add DRI annotation (moved further right)
+    x_ann = -1.1 + 0.18 * (1.1 - (-1.1))
+    y_ann = -1.1 + 0.9 * (1.1 - (-1.1))
+    annotate!(p, x_ann, y_ann, text("DRI = $(round(dri, digits=2))", :red, 12))
+    
+    # Add axis labels
     xlabel!(p, "Intersubjective Agreement - Considerations")
     ylabel!(p, "Intersubjective Agreement - Preferences")
-    plot_title = "$title_str: $suffix"
-    title!(p, plot_title)
-
-    # Add an annotation with the rounded DRI value.
-    # Position the annotation similar to normalized coordinates (0.1, 0.9)
-    x_ann = -1.1 + 0.1 * (1.1 - (-1.1))  # -0.88
-    y_ann = -1.1 + 0.9 * (1.1 - (-1.1))  # 0.88
-    annotate!(p, x_ann, y_ann, text("DRI = $(round(DRI, digits=2))", :red, 13))
-
-    return p
 end
 
+"""
+    dri_plot_side_by_side(xdata_pre::Vector, ydata_pre::Vector, xdata_post::Vector, ydata_post::Vector, 
+                         main_title::String, dri_pre::Float64, dri_post::Float64)
 
+Creates a side-by-side plot with pre and post deliberation data, including:
+  - Main title for the overall figure
+  - Subplot titles for pre and post deliberation
+  - Same plotting features as dri_plot for each subplot
+"""
+function dri_plot_side_by_side(xdata_pre::Vector, ydata_pre::Vector, xdata_post::Vector, ydata_post::Vector, 
+                             main_title::String, dri_pre::Float64, dri_post::Float64)
+    # Create a layout with a title plot and two subplots
+    title_plot = plot(title = main_title, grid = false, showaxis = false, bottom_margin = -50Plots.px)
+    
+    # Create the subplots
+    p1 = plot(layout=(1,1), size=(400,400), dpi=100, margin=5Plots.mm)
+    p2 = plot(layout=(1,1), size=(400,400), dpi=100, margin=5Plots.mm)
+    
+    # Create pre-deliberation subplot
+    dri_plot(p1[1], xdata_pre, ydata_pre, "Pre-Deliberation", dri_pre)
+    
+    # Create post-deliberation subplot
+    dri_plot(p2[1], xdata_post, ydata_post, "Post-Deliberation", dri_post)
+    
+    # Combine all plots with the layout, using more space for the title section
+    p = plot(title_plot, p1, p2, layout = @layout([A{0.1h}; [B C]]), size=(800,400))
+    
+    return p
+end
 
 function main() 
 
@@ -314,6 +303,15 @@ function main()
             append!(DRIInd_Global, DRIInd)
             append!(DRI_Global, DRI_Case)
         end
+
+        # --- Generate and save side-by-side DRI plot for this case ---
+        case_plot = dri_plot_side_by_side(
+            IC[!, :Q1], IC[!, :R1],
+            IC[!, :Q2], IC[!, :R2],
+            "DRI Plots: $(study_val) - $(case_val) (Case $(case))",
+            DRI_PRE, DRI_POST
+        )
+        savefig(case_plot, "$outdir/Figures/Case_$(case).png")
     end
 
     # --- Produce additional output for non-control cases ---
@@ -333,65 +331,57 @@ function main()
     # Generate and save Figure 2 plots
     # =============================================================================
 
-    # (Assuming IC_Global and DRI_Global are your DataFrames with the appropriate columns.)
-    # For instance, to filter for StudyID == 2:
-
-    fig2_pre = dri_plot(filter(row -> row[:StudyID] == 2, IC_Global),
-                        :Q1, :R1,
-                        "Figure 2. DRI Plots: FNQCJ Case", "PRE",
-                        first(filter(row -> row[:StudyID] == 2, DRI_Global)).DRI_PRE)
-
-    savefig(fig2_pre, "$outdir/Figures/Fig2_a_Pre.png")
-
-    fig2_post = dri_plot(filter(row -> row[:StudyID] == 2, IC_Global),
-                         :Q2, :R2,
-                         "Figure 2. DRI Plots: FNQCJ Case", "POST",
-                         first(filter(row -> row[:StudyID] == 2, DRI_Global)).DRI_POST)
-
-    savefig(fig2_post, "$outdir/Figures/Fig2_b_Post.png")
+    # Create side-by-side plot for Figure 2
+    fig2_data = filter(row -> row[:StudyID] == 2, IC_Global)
+    fig2_dri = filter(row -> row[:StudyID] == 2, DRI_Global)[1,:]
+    
+    fig2 = dri_plot_side_by_side(
+        fig2_data[!, :Q1], fig2_data[!, :R1],
+        fig2_data[!, :Q2], fig2_data[!, :R2],
+        "Figure 2. DRI Plots: FNQCJ Case (Case $(fig2_dri.CaseID))",
+        fig2_dri.DRI_PRE, fig2_dri.DRI_POST
+    )
+    savefig(fig2, "$outdir/Figures/Fig2.png")
 
     # =============================================================================
     # Generate and save Figure 3 plots
     # =============================================================================
 
-    # Figure 3 – Part 1: Control Group (e.g. CaseId == 0.1 for StudyID == 1)
-    fig3_control_pre = dri_plot(filter(row -> row[:StudyID] == 1 && row[:CaseId] == 0.1, IC_Global),
-                                :Q1, :R1,
-                                "Figure 3. DRI Plots: Uppsala Speaks (Control)", "PRE",
-                                first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 0.1, DRI_Global)).DRI_PRE)
-    savefig(fig3_control_pre, "$outdir/Figures/Fig3_1Control_a_Pre.png")
+    # Figure 3 – Part 1: Control Group
+    fig3_control_data = filter(row -> row[:StudyID] == 1 && row[:CaseId] == 0.1, IC_Global)
+    fig3_control_dri = filter(row -> row[:StudyID] == 1 && row[:CaseID] == 0.1, DRI_Global)[1,:]
+    
+    fig3_control = dri_plot_side_by_side(
+        fig3_control_data[!, :Q1], fig3_control_data[!, :R1],
+        fig3_control_data[!, :Q2], fig3_control_data[!, :R2],
+        "Figure 3. DRI Plots: Uppsala Speaks (Control) (Case $(fig3_control_dri.CaseID))",
+        fig3_control_dri.DRI_PRE, fig3_control_dri.DRI_POST
+    )
+    savefig(fig3_control, "$outdir/Figures/Fig3_1Control.png")
 
-    fig3_control_post = dri_plot(filter(row -> row[:StudyID] == 1 && row[:CaseId] == 0.1, IC_Global),
-                                 :Q2, :R2,
-                                 "Figure 3. DRI Plots: Uppsala Speaks (Control)", "POST",
-                                 first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 0.1, DRI_Global)).DRI_POST)
-    savefig(fig3_control_post, "$outdir/Figures/Fig3_1Control_b_Post.png")
+    # Figure 3 – Part 2: Group Briefing
+    fig3_brief_data = filter(row -> row[:StudyID] == 1 && row[:CaseId] == 1, IC_Global)
+    fig3_brief_dri = filter(row -> row[:StudyID] == 1 && row[:CaseID] == 1, DRI_Global)[1,:]
+    
+    fig3_brief = dri_plot_side_by_side(
+        fig3_brief_data[!, :Q1], fig3_brief_data[!, :R1],
+        fig3_brief_data[!, :Q2], fig3_brief_data[!, :R2],
+        "Figure 3. DRI Plots: Uppsala Speaks Study (Group Briefing) (Case $(fig3_brief_dri.CaseID))",
+        fig3_brief_dri.DRI_PRE, fig3_brief_dri.DRI_POST
+    )
+    savefig(fig3_brief, "$outdir/Figures/Fig3_2Brief.png")
 
-    # Figure 3 – Part 2: Group Briefing (e.g. CaseId == 1 for StudyID == 1)
-    fig3_brief_pre = dri_plot(filter(row -> row[:StudyID] == 1 && row[:CaseId] == 1, IC_Global),
-                              :Q1, :R1,
-                              "Figure 3. DRI Plots: Uppsala Speaks Study (Group Briefing)", "PRE",
-                              first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 1, DRI_Global)).DRI_PRE)
-    savefig(fig3_brief_pre, "$outdir/Figures/Fig3_2Brief_a_Pre.png")
-
-    fig3_brief_post = dri_plot(filter(row -> row[:StudyID] == 1 && row[:CaseId] == 1, IC_Global),
-                               :Q2, :R2,
-                               "Figure 3. DRI Plots: Uppsala Speaks Study (Group Briefing)", "POST",
-                               first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 1, DRI_Global)).DRI_POST)
-    savefig(fig3_brief_post, "$outdir/Figures/Fig3_2Brief_b_Post.png")
-
-    # Figure 3 – Part 3: Group Building Plus (e.g. CaseId == 2 for StudyID == 1)
-    fig3_building_pre = dri_plot(filter(row -> row[:StudyID] == 1 && row[:CaseId] == 2, IC_Global),
-                                 :Q1, :R1,
-                                 "Figure 3. DRI Plots: Uppsala Speaks Study (Group Building Plus)", "PRE",
-                                 first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 2, DRI_Global)).DRI_PRE)
-    savefig(fig3_building_pre, "$outdir/Figures/Fig3_3Building_a_Pre.png")
-
-    fig3_building_post = dri_plot(filter(row -> row[:StudyID] == 1 && row[:CaseId] == 2, IC_Global),
-                                  :Q2, :R2,
-                                  "Figure 3. DRI Plots: Uppsala Speaks Study (Group Building Plus)", "POST",
-                                  first(filter(row -> row[:StudyID] == 1 && row[:CaseID] == 2, DRI_Global)).DRI_POST)
-    savefig(fig3_building_post, "$outdir/Figures/Fig3_3Building_b_Post.png")
+    # Figure 3 – Part 3: Group Building Plus
+    fig3_building_data = filter(row -> row[:StudyID] == 1 && row[:CaseId] == 2, IC_Global)
+    fig3_building_dri = filter(row -> row[:StudyID] == 1 && row[:CaseID] == 2, DRI_Global)[1,:]
+    
+    fig3_building = dri_plot_side_by_side(
+        fig3_building_data[!, :Q1], fig3_building_data[!, :R1],
+        fig3_building_data[!, :Q2], fig3_building_data[!, :R2],
+        "Figure 3. DRI Plots: Uppsala Speaks Study (Group Building Plus) (Case $(fig3_building_dri.CaseID))",
+        fig3_building_dri.DRI_PRE, fig3_building_dri.DRI_POST
+    )
+    savefig(fig3_building, "$outdir/Figures/Fig3_3Building.png")
 
 end
 

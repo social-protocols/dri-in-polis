@@ -238,7 +238,8 @@ if abspath(PROGRAM_FILE) == @__FILE__
                 plot_title_fontsize=12,
                 margin=20Plots.mm,
                 subplot_titles=["Stage 1 (PRE)", "Stage 2 (POST)"])
-        
+
+            
         # Process and plot each stage
         for stage in [1, 2]
             data_filtered = filter(r -> r.CaseID == case && r.StageID == stage, data)
@@ -246,6 +247,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
                 println("Warning: No data found for case $case and stage $stage")
                 continue
             end
+
             
             case_name = data_filtered[1, :Case]
             stage_name = stage == 1 ? "PRE" : "POST"
