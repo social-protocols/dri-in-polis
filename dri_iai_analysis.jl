@@ -4,8 +4,8 @@ using Statistics
 using Plots
 using GLM
 
-# Import functions from resampling_dri.jl
-include("resampling_dri.jl")
+# Import functions from random-tagging.jl
+include("random-tagging.jl")
 
 """
     calculate_iai(F_df::DataFrame, Pref_df::DataFrame)
@@ -109,7 +109,7 @@ end
 
 function plot_changes(changes::DataFrame, results::DataFrame)
     # Create output directory if it doesn't exist
-    output_dir = "Output/iai_analysis"
+    output_dir = "local-output/iai_analysis"
     mkpath(output_dir)
     
     # Plot 1: Absolute Changes in DRI vs IAI
@@ -182,7 +182,7 @@ end
 
 function main()
     # Create output directory if it doesn't exist
-    output_dir = "Output/iai_analysis"
+    output_dir = "local-output/iai_analysis"
     mkpath(output_dir)
     
     # Read data
