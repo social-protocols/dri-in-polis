@@ -55,7 +55,7 @@ end
 
 data = CSV.read("Input/Data1_Raw_Input.csv", DataFrame)
 
-function statement_selection_sidebyside_plot(case; direction=1)
+function statement_selection_sidebyside_plot(case, case_name; direction=1)
 	title = if direction == 1
 		"Least Controversial 25% of Considerations"
 	elseif direction == -1
@@ -73,7 +73,7 @@ function statement_selection_sidebyside_plot(case; direction=1)
 	end
 
 	# Create a layout with a title plot and two subplots
-	title_plot = plot(title = "DRI Plots Case $case: $title", grid = false, showaxis = false, bottom_margin = -50Plots.px)
+	title_plot = plot(title = "DRI Plots Case $case ($case_name): $title", grid = false, showaxis = false, bottom_margin = -50Plots.px)
 
 	# Create the subplots
 	p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
@@ -88,7 +88,7 @@ function statement_selection_sidebyside_plot(case; direction=1)
 	outdir = "local-output/statement-subset/"
 	mkpath(outdir)
 
-	savefig(p, "$outdir/$filename-considerations-case-$case.png")
+	savefig(p, "$outdir/case-$case-$filename-considerations.png")
 end
 
 # Main execution
@@ -101,15 +101,9 @@ if abspath(PROGRAM_FILE) == @__FILE__
 		case = Float64[],
 		CaseName = String[],
 		delta_of_deltas = Float64[],
-		top_quartile_pre = Float64[],
-		top_quartile_post = Float64[],
-		top_quartile_delta = Float64[],
-		pre = Float64[],
-		post = Float64[],
+		bottom_quartile_delta = Float64[],
 		delta = Float64[],
-		bottom_quartile_pre = Float64[],
-		bottom_quartile_post = Float64[],
-		bottom_quartile_delta = Float64[]
+		top_quartile_delta = Float64[]
 	)
 	
 	# Process each case
@@ -138,26 +132,102 @@ if abspath(PROGRAM_FILE) == @__FILE__
 			case,
 			case_name,
 			delta_of_deltas,
-			top_quartile_pre,
-			top_quartile_post,
-			top_quartile_delta,
-			pre,
-			post,
+			bottom_quartile_delta,
 			delta,
-			bottom_quartile_pre,
-			bottom_quartile_post,
-			bottom_quartile_delta
+			top_quartile_delta
 		))
 		
 		# Generate plots for each case
-		statement_selection_sidebyside_plot(case; direction=-1)
-		statement_selection_sidebyside_plot(case; direction=0)
-		statement_selection_sidebyside_plot(case; direction=1)
+		statement_selection_sidebyside_plot(case, case_name; direction=-1)
+		statement_selection_sidebyside_plot(case, case_name; direction=0)
+		statement_selection_sidebyside_plot(case, case_name; direction=1)
 	end
 	
 	# Save results to CSV
 	mkpath("local-output/statement-subset")
 	CSV.write("local-output/statement-subset/statement-subset-results.csv", results)
+	
+	# Create horizontal bar chart of delta DRI values
+	# Sort results by case name for consistent ordering
+	sort!(results, :CaseName)
+	
+	# Find the range of delta values
+	min_delta = minimum([minimum(results.bottom_quartile_delta), minimum(results.delta), minimum(results.top_quartile_delta)])
+	max_delta = maximum([maximum(results.bottom_quartile_delta), maximum(results.delta), maximum(results.top_quartile_delta)])
+	
+	# Add some padding to the range
+	delta_range = max_delta - min_delta
+	padding = 0.1 * delta_range
+	x_min = min_delta - padding
+	x_max = max_delta + padding
+	
+	# Create the plot
+	p = plot(
+		size=(1000, 400 + 30 * nrow(results)),  # Increased height to accommodate spacing
+		left_margin=60Plots.mm,  # Increased from 20mm to 40mm
+		bottom_margin=10Plots.mm,
+		top_margin=10Plots.mm,
+		right_margin=10Plots.mm,
+		legend=:topright,
+		title="Delta DRI Value Comparison by Statement Controversy",
+		xlims=(x_min, x_max),
+		yticks=[]  # Remove y-axis ticks
+	)
+	
+	# Prepare data for side-by-side bars with spacing
+	y_positions = 1:1.5:(1.5 * nrow(results))  # Add 0.5 spacing between groups
+	bar_width = 0.2
+	spacing = 0.3  # Space between bars within a group
+	
+	# Plot each type of bar separately with offset
+	bar!(p,
+		y_positions .- spacing,
+		results.bottom_quartile_delta,
+		bar_width=bar_width,
+		label="Bottom Quartile",
+		color=:green,
+		alpha=0.7,
+		orientation=:h
+	)
+	
+	bar!(p,
+		y_positions,
+		results.delta,
+		bar_width=bar_width,
+		label="All Considerations",
+		color=:blue,
+		alpha=0.7,
+		orientation=:h
+	)
+	
+	bar!(p,
+		y_positions .+ spacing,
+		results.top_quartile_delta,
+		bar_width=bar_width,
+		label="Top Quartile",
+		color=:red,
+		alpha=0.7,
+		orientation=:h
+	)
+	
+	# Add case names as text annotations
+	for (i, case_name) in enumerate(results.CaseName)
+		annotate!(p, 
+			x_min - 0.01 * delta_range,  # Moved further left
+			y_positions[i],
+			text(case_name, 8, :right)
+		)
+	end
+	
+	# Add a vertical line at x=0
+	vline!(p, [0], color=:black, linestyle=:dash, label="")
+	
+	# Add labels
+	xlabel!(p, "Delta DRI")
+	ylabel!(p, "")  # Remove y-axis label since we're showing case names directly
+	
+	# Save the plot
+	savefig(p, "local-output/statement-subset/delta-dri-comparison.png")
 end
 
 

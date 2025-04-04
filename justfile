@@ -14,5 +14,6 @@ poc-polis CASE="vtaiwan.uberx" METHOD="" THRESHOLD="":
 random-tagging N="" mode="" : 
    julia --project random-tagging.jl {{N}} {{mode}}
 
-state N="" mode="" : 
-   julia --project state.jl {{N}} {{mode}}
+statement-subset: 
+   julia --project statement-subset.jl
+   
