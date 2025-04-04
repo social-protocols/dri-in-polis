@@ -10,7 +10,7 @@ The output of the experiments and a brief writeup of the methodology of each exp
 
 - [**DRI Reference Implementation**](docs/reference-implementation.md): Re-produces the calculations and some charts from the above paper.
 - [**Proof-of-Concept DRI in pol.is**](docs/poc-polis.md): Experiment with a variant of the DRI that uses pol.is data.
-- [**Random-Tagging Analysis**](docs/random-tagging.md): Experiment with randomly tagging statements as preferences/considerations to see if it makes a difference.
+- [**Random-Tagging Analysis**](docs/random-tagging.md): Experiment with randomly classifying statements as preferences/considerations to see if it makes a difference.
 - [**Statement Subset Selection Analysis**](docs/statement-subset.md): Experiment with using only a subset of statements -- the most or least controversial. 
 
 ## Background and Attribution

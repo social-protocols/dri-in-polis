@@ -1,7 +1,7 @@
 # Random-Tagging Analysis
 
 
-The pol.is implementation shows us that that even designating statements as considerations or preferences *randomly* results in a positive DRI. This is because, generally, the intersubjective-agreement (pairwise Spearman correlation) on a random group of statements will correlate with intersubjective agreement on another random group of statements.
+The [Polis proof-of-concept](polis-poc.md) shows us that that even designating statements as considerations or preferences *randomly* results in a positive DRI. This is because, generally, the intersubjective-agreement (pairwise Spearman correlation) on a random group of statements will correlate with intersubjective agreement on another random group of statements.
 
 This naturally raises the question of whether inter-subjective agreement on considerations correlates with inter-subjective agreement on preferences to a *greater degree* than it does to a random set of statements.
 
