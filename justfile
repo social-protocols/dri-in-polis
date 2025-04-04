@@ -7,7 +7,7 @@ reference-implementation:
 download-polis-data:
    git submodule update --init --recursive
 
-poc-polis CASE="vtaiwan.uberx" METHOD="" THRESHOLD="":
+poc-polis CASE="vtaiwan.uberx" METHOD="" THRESHOLD="25":
    just download-polis-data
    julia --project poc-polis.jl {{CASE}} {{METHOD}} {{THRESHOLD}}
 

@@ -11,10 +11,10 @@ Below are sample outputs for two pol.is cases:
 ### vtaiwan.uberx Case
 
 - **Correlation (Phi):**  
-  ![vtaiwan.uberx - Phi](https://raw.githubusercontent.com/social-protocols/dri-in-polis/master/published-output/poc-polis/vtaiwan.uberx/Figures/poc-polis_plot-phi.png)
+  ![vtaiwan.uberx - Phi](../published-output/poc-polis/vtaiwan.uberx/Figures/poc-polis_plot-phi.png)
 
 
 ### london.youth.policing Case
 
 - **Correlation (Phi):**  
-  ![london.youth.policing - Phi](https://raw.githubusercontent.com/social-protocols/dri-in-polis/master/published-output/poc-polis/london.youth.policing/Figures/poc-polis_plot-phi.png)
+  ![london.youth.policing - Phi](../published-output/poc-polis/london.youth.policing/Figures/poc-polis_plot-phi.png)

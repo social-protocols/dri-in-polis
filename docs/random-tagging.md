@@ -15,15 +15,15 @@ random-tagging.jl tests this hypothesis using the data from all the cases in the
 - Fisher's statistic: 90.90986159098617
 - Aggregate p-value (method1) using Fisher's method: 0.28424599933378114
 
-p-values for all cases are in [this CSV file](https://github.com/social-protocols/dri-in-polis/tree/master/published-output/random-tagging/random-tagging_results_method1.csv)
+p-values for all cases are in [this CSV file](../published-output/random-tagging/random-tagging_results_method1.csv)
 
-Charts for all cases are [here](https://github.com/social-protocols/dri-in-polis/tree/master/published-output/random-tagging)
+Charts for all cases are [here](../published-output/random-tagging)
 
 Below are some sample output charts:
 
-![Case 18: GBR Futures](https://raw.githubusercontent.com/social-protocols/dri-in-polis/master/published-output/random-tagging/dri_distribution_case18.0_method2.png)
+![Case 18: GBR Futures](../published-output/random-tagging/dri_distribution_case18.0_method2.png)
 
-![Case 1: Biobanking WA](https://raw.githubusercontent.com/social-protocols/dri-in-polis/master/published-output/random-tagging/dri_distribution_case11.0_method1.png)
+![Case 1: Biobanking WA](../published-output/random-tagging/dri_distribution_case11.0_method1.png)
 
 
 ### Alternative Methodology
@@ -36,7 +36,7 @@ Next, we calculate a hypothetical DRI using the same subset of considerations ag
 
 Repeat this n times and calculate the number of times the resampled DRI is greater than the control DRI to obtain a p-value.
 
-p-values for all cases are in [this CSV file](https://github.com/social-protocols/dri-in-polis/tree/master/published-output/random-tagging/random-tagging_results_method2.csv)
+p-values for all cases are in [this CSV file](../published-output/random-tagging/random-tagging_results_method2.csv)
 
 
 ### Results
