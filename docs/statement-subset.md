@@ -6,7 +6,7 @@
 
 The plots for the FNQCJ case in the How Deliberation Paper stand out: pre-deliberation, the intersubjective agreement values are in a tight vertical band in the right-half of the plot, indicating a high level of intersubjective **agreement on considerations, but disagreement on preferences**.
 
-![FNQCJ Case All Considerations](../published-output/statement-subset/case-3.0-all-considerations-considerations.png)
+![FNQCJ Case All Considerations](../published-output/statement-subset/case-3.0-all-considerations.png)
 
 This naturally raises the question of whether there is some subset of consideration that is more controversial, and what the DRI analysis would look like if the survey only included these. 
 
@@ -24,7 +24,7 @@ Both pre- and post-deliberation, intersubjective-agreement values are now much m
 
 But whereas in the original chart, there is a very large change in DRI between pre- and post-deliberation, in the high-controversy statement chart, there is almost no change in the DRI. 
 
-So the results are very sensitive to the choice of considerations to include in the survey. Specifically, the inclusion of a large number of non-controversial considerations.*
+*So the results are very sensitive to the choice of considerations to include in the survey. Specifically, the inclusion of a large number of non-controversial considerations.*
 
 ## Diluting Results
 

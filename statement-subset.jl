@@ -69,7 +69,7 @@ function statement_selection_sidebyside_plot(case, case_name; direction=1)
 	elseif direction == -1
 		"top-quartile"
 	else
-		"all-considerations"
+		"all"
 	end
 
 	# Create a layout with a title plot and two subplots
