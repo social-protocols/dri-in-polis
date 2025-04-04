@@ -92,6 +92,14 @@ or to specific a number of samples and a method:
  
 This will produce a .png for each case with a histogram of the random-tag DRI values (pre and post) along with a p-value under local-output/. P-values are also output to a .CSV file in the same directory.
 
+### Running Statement Subset Analysis
+
+Run:
+
+    julia --project statement-subset.jl
+
+This will place output into local-output/statement-subset
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
