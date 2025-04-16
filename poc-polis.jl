@@ -43,9 +43,9 @@ Returns a correlation coefficient between x and y for the chosen method:
   the 2×2 "phi coefficient" (equivalent to Pearson correlation on a 2×2 table).
 - For small vectors or missing data, returns missing.
 """
-function correlation(x::AbstractVector, y::AbstractVector, method::Symbol)
+function correlation(x::AbstractVector, y::AbstractVector, method::Symbol, threshold::Integer)
     mask = .!ismissing.(x) .& .!ismissing.(y)
-    if count(mask) <= 1
+    if count(mask) <= threshold
         return missing
     end
     # Use the mask to filter both vectors so that they are aligned
@@ -109,14 +109,15 @@ end
 Given a DataFrame `df` whose columns are participants, returns a DataFrame of pairwise
 correlations with columns (Var1, Var2, Freq). The correlation is chosen by `method`.
 """
-function pairwise_correlation(mat::DataFrame; method=:spearman)
+function pairwise_correlation(mat::DataFrame, threshold::Int; method=:spearman)
     cols = names(mat)
     result = DataFrame(Var1 = String[], Var2 = String[], Freq = Union{Missing,Float64}[])
     for i in 1:length(cols)
         for j in 1:(i-1)
             col_i = mat[!, cols[i]]
             col_j = mat[!, cols[j]]
-            cval = correlation(col_i, col_j, method)
+
+            cval = correlation(col_i, col_j, method, threshold)
             push!(result, (string(cols[i]), string(cols[j]), cval))
         end
     end
@@ -172,12 +173,35 @@ function dri_plot(data::DataFrame, x::Symbol, y::Symbol, title_str::String, DRIv
     return p
 end
 
+"""
+    select_top_pairs(IC::DataFrame, max_pairs::Int=1000)
+
+Selects the top pairs based on the number of common answers between participants.
+Returns a DataFrame with the selected pairs.
+"""
+function select_top_pairs(IC::DataFrame, max_pairs::Int=1000)
+    # Count non-missing values for each pair
+    pair_counts = DataFrame(
+        Var1 = IC.Var1,
+        Var2 = IC.Var2,
+        count = [count(!ismissing, row) for row in eachrow(IC)]
+    )
+    
+    # Sort by count in descending order
+    sort!(pair_counts, :count, rev=true)
+    
+    # Select top pairs
+    top_pairs = pair_counts[1:min(max_pairs, nrow(pair_counts)), [:Var1, :Var2]]
+    
+    # Join back with original data to get all columns
+    return leftjoin(top_pairs, IC, on=[:Var1, :Var2])
+end
+
 ###############################################################################
 # 2) Main function: single-case pol.is data
 ###############################################################################
 
 function main_poc_polis(case::String; correlation_method::Symbol, threshold::Int)
-
     votes_file = "polis/openData/$case/votes.csv"
 
     votes_df = CSV.read(votes_file, DataFrame)
@@ -187,7 +211,6 @@ function main_poc_polis(case::String; correlation_method::Symbol, threshold::Int
 
     # drop any rows that have missing or zero votes
     df = filter(r -> r.vote in (-1, 1), votes_df)
-    # df = votes_df
 
     if nrow(df) == 0
         throw(ArgumentError("No data for either considerations or preferences. Exiting."))
@@ -219,10 +242,10 @@ function main_poc_polis(case::String; correlation_method::Symbol, threshold::Int
 
     consider_mat = df_wide[findall(tags .== "c"), usabel_indices] 
     pref_mat = df_wide[findall(tags .== "p"), usabel_indices] 
-    
+   
     # --- Compute pairwise correlations
-    QWrite = pairwise_correlation(consider_mat; method=correlation_method)
-    RWrite = pairwise_correlation(pref_mat; method=correlation_method)
+    QWrite = pairwise_correlation(consider_mat, threshold; method=correlation_method)
+    RWrite = pairwise_correlation(pref_mat, threshold; method=correlation_method)
 
     # Both QWrite and RWrite have columns (Var1, Var2, Freq).
     # We want to merge them by (Var1, Var2) so we can store Q in e.g. Q1, R in R1
@@ -235,37 +258,42 @@ function main_poc_polis(case::String; correlation_method::Symbol, threshold::Int
     # A simple approach is to create a DataFrame with all pairs from QWrite, then leftjoin RWrite.
     IC = leftjoin(QWrite, RWrite, on=[:Var1, :Var2])
 
+    # Select top pairs based on common answers
+    IC = select_top_pairs(IC, 1000)
+    println("Selected $(nrow(IC)) pairs for analysis")
+
     # --- Compute group-level DRI
     group_DRI = dri_calc(IC, :R1, :Q1)
-    # println("Group-level DRI = $group_DRI")
+    println("Group-level DRI = $group_DRI")
 
     # --- Compute individual-level DRI
     # 1) gather unique participant IDs from all pairs
     partlist = unique(vcat(IC.Var1, IC.Var2))
     # 2) for each participant, filter rows of IC that contain them
     DRIInd = DataFrame(Participant = partlist, DRI = zeros(length(partlist)))
+    total_participants = length(partlist)
     for (i,p) in enumerate(partlist)
         sub = filter(r -> (r.Var1 == p || r.Var2 == p), IC)
-        @show i, p
         if size(sub)[1] > 0
             dri = dri_calc(sub, :R1, :Q1)
             if !ismissing(dri)
                 DRIInd[i, :DRI] = dri
             end
         end
+        # Show progress
+        progress = round(100 * i / total_participants, digits=1)
     end
+    println()  # New line after progress bar
 
-    outdir = "local-output/poc-polis/$case"
-
-    mkpath("$outdir/Figures")
+    outdir = "local-output/poc-polis"
 
     # --- Save outputs
-    CSV.write("$outdir/IC_polis-$(correlation_method).csv", IC)
-    CSV.write("$outdir/DRIInd_polis-$(correlation_method).csv", DRIInd)
+    # CSV.write("$outdir/$case-IC-$(correlation_method).csv", IC)
+    # CSV.write("$outdir/$case-DRIInd-$(correlation_method).csv", DRIInd)
 
     # --- Make one scatter plot for the entire group
-    p = dri_plot(IC, :Q1, :R1, "DRI plots: pol.is $case ($correlation_method, threshold=$threshold)", group_DRI)
-    savefig(p, "$outdir/Figures/poc-polis_plot-$(correlation_method).png")
+    p = dri_plot(IC, :Q1, :R1, "DRI plots: pol.is $case\n($correlation_method, threshold=$threshold)", group_DRI)
+    savefig(p, "$outdir/$case-ICplot-$(correlation_method).png")
     println("Wrote .csv and .png files to $outdir/")
 end
 
@@ -275,33 +303,42 @@ end
 
 if abspath(PROGRAM_FILE) == @__FILE__
 
-    if length(ARGS) < 1
-        println("Usage: julia poc-polis.jl CASE [method]")
-        println("  CASE: name of the case (e.g. american-assembly.bowling-green)")
+    if length(ARGS) > 2
+        println("Usage: julia poc-polis.jl [method] [threshold]")
         println("  method: correlation method (default=:phi)")
+        println("  threshold: minimum number of votes (default=5)")
         exit(1)
     end
 
-    # first argument is name of case
-    case = ARGS[1]
-
     correlation_method=:phi
+    if length(ARGS) > 0
+        correlation_method = Symbol(ARGS[1])
+    end
+
+    threshold=10
     if length(ARGS) > 1
-        correlation_method = Symbol(ARGS[2])
+        threshold = parse(Int, ARGS[2])
     end
 
-
-    threshold=5
-    if length(ARGS) > 2
-        # parse integer
-        threshold = parse(Int, ARGS[3])
-    end
-
-
-    @show case
     @show correlation_method
     @show threshold
 
-    # Example usage: adapt to your actual filenames
-    main_poc_polis(case; correlation_method=correlation_method, threshold=threshold)
+    # Get all case directories
+    polis_dir = "polis/openData"
+    cases = readdir(polis_dir)
+    
+    # Filter out any non-directories
+    cases = filter(c -> isdir(joinpath(polis_dir, c)), cases)
+    
+    println("Found $(length(cases)) cases to process")
+   
+    # Process each case
+    for case in cases
+        println("\nProcessing case: $case")
+        try
+            main_poc_polis(case; correlation_method=correlation_method, threshold=threshold)
+        catch e
+            println("Error processing case $case: $e")
+        end
+    end
 end

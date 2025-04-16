@@ -7,9 +7,9 @@ reference-implementation:
 download-polis-data:
    git submodule update --init --recursive
 
-poc-polis CASE="vtaiwan.uberx" METHOD="" THRESHOLD="25":
+poc-polis METHOD="" THRESHOLD="":
    just download-polis-data
-   julia --project poc-polis.jl {{CASE}} {{METHOD}} {{THRESHOLD}}
+   julia --project poc-polis.jl {{METHOD}} {{THRESHOLD}}
 
 random-tagging N="" mode="" : 
    julia --project random-tagging.jl {{N}} {{mode}}
