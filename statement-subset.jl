@@ -148,8 +148,8 @@ if abspath(PROGRAM_FILE) == @__FILE__
 	CSV.write("local-output/statement-subset/statement-subset-results.csv", results)
 	
 	# Create horizontal bar chart of delta DRI values
-	# Sort results by case name for consistent ordering
-	sort!(results, :CaseName)
+	# Sort results by case number in reverse order
+    sort!(results, [:case], by=x -> x, rev=true)
 	
 	# Find the range of delta values
 	min_delta = minimum([minimum(results.bottom_quartile_delta), minimum(results.delta), minimum(results.top_quartile_delta)])

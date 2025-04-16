@@ -42,3 +42,33 @@ function dri_plot(p::Plots.Subplot, xdata::Vector, ydata::Vector, title_str::Str
     ylabel!(p, "Intersubjective Agreement - Preferences")
 end
 
+
+"""
+    dri_plot_side_by_side(xdata_pre::Vector, ydata_pre::Vector, xdata_post::Vector, ydata_post::Vector, 
+                         main_title::String, dri_pre::Float64, dri_post::Float64)
+
+Creates a side-by-side plot with pre and post deliberation data, including:
+  - Main title for the overall figure
+  - Subplot titles for pre and post deliberation
+  - Same plotting features as dri_plot for each subplot
+"""
+function dri_plot_side_by_side(xdata_pre::Vector, ydata_pre::Vector, xdata_post::Vector, ydata_post::Vector, 
+                             main_title::String, dri_pre::Float64, dri_post::Float64)
+    # Create a layout with a title plot and two subplots
+    title_plot = plot(title = main_title, grid = false, showaxis = false, bottom_margin = -50Plots.px)
+    
+    # Create the subplots
+    p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
+    p2 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
+
+    # Create pre-deliberation subplot
+    dri_plot(p1[1], xdata_pre, ydata_pre, "Pre-Deliberation", dri_pre)
+    
+    # Create post-deliberation subplot
+    dri_plot(p2[1], xdata_post, ydata_post, "Post-Deliberation", dri_post)
+    
+    # Combine all plots with the layout, using more space for the title section
+    p = plot(title_plot, p1, p2, layout = @layout([A{0.1h}; [B C]]), size=(800,400))
+    
+    return p
+end
