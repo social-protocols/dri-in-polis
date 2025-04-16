@@ -41,9 +41,8 @@ p-values for all cases are in [this CSV file](../published-output/random-tagging
 
 ### Results
 
-- Number of datasets: 42
-- Fisher's statistic: 133.76768923929313
-- Aggregate p-value (method2) using Fisher's method: 0.0004535416185228458
-
+Number of datasets: 42
+Fisher's statistic: 133.76768923929313
+Aggregate p-value (method2) using Fisher's method: 0.0004535416185228458
 
 
