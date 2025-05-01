@@ -20,3 +20,11 @@ validity-test:
 statement-subset: 
    julia --project statement-subset.jl
    
+
+dual-pca MAX_VARIANCE_EXPLAINED="" METHOD="":
+   julia --project dual-pca.jl {{MAX_VARIANCE_EXPLAINED}} {{METHOD}}
+
+
+
+component-scores:
+   julia --project component-scores.jl
