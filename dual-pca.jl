@@ -168,18 +168,14 @@ function dualPCA_plot(case, case_name, min_variance_explained::Float64, correlat
 
     # Create standard DRI plot
     p_standard = dri_plot_pre_post(
-        ICs_standard[1][!, :Q], ICs_standard[1][!, :R],
-        ICs_standard[2][!, :Q], ICs_standard[2][!, :R],
-        "Standard DRI\n$original_F_dims/$original_Pref_dims dimensions",
-        DRIs_standard[1], DRIs_standard[2]
+        ICs_standard,
+        "Standard DRI\n$original_F_dims/$original_Pref_dims dimensions"
     )
 
     # Create dual PCA DRI plot
     p_dual = dri_plot_pre_post(
-        ICs[1][!, :Q], ICs[1][!, :R],
-        ICs[2][!, :Q], ICs[2][!, :R],
-        "Reduced-Dimension DRI (Dual PCA, $correlation_method)\n$F_dimensions/$Pref_dimensions dimensions, $(round(100 * F_variance_explained, digits=0))/$(round(100 * Pref_variance_explained, digits=0))% σ² explained",
-        DRIs[1], DRIs[2]
+        ICs,
+        "Reduced-Dimension DRI (Dual PCA, $correlation_method)\n$F_dimensions/$Pref_dimensions dimensions, $(round(100 * F_variance_explained, digits=0))/$(round(100 * Pref_variance_explained, digits=0))% σ² explained"
     )
 
     # Create main title plot
@@ -237,7 +233,7 @@ function dual_pca_main()
         catch e
             println("Error parsing arguments: ", e)
             println("Usage: julia dual-pca.jl [min_variance_explained] [correlation_method] [case_number]")
-            println("  min_variance_explained: Fraction of variance to explain (0 < value ≤ 1). Default: 0.90")
+            println("  min_variance_explained: Fraction of variance to explain (0 < value ≤ 1). Default: 0.99")
             println("  correlation_method: Correlation method to use (default: pearson)")
             println("    Options: cosine_similarity, pearson, spearman")
             println("  case_number: Optional case number to process (default: all cases)")

@@ -1,6 +1,6 @@
 # Dual-PCA DRI
 
-In this experiment, do a DRI analysis on reduced-dimension data using PCA.
+In this experiment we calculate the DRI on reduced-dimension data using PCA.
 
 ## Motivation
 
@@ -44,7 +44,7 @@ Note also that while pre-deliberation DRI decreases, post-deliberation DRI incre
 
 Further reducing dimensions continues the trend of reducing pre-deliberation DRI and increasing post-deliberation DRI. 
 
-![case-12.0-dual-pca-11-5-dims-pearson.png](../published-output/dual-pca/case-12.0-dual-pca-11-5-dims-pearson.png)
+![case-12.0-dual-pca-16-5-dims-pearson.png](../published-output/dual-pca/case-12.0-dual-pca-16-5-dims-pearson.png)
 
 
 ## Example 2: ACP
@@ -57,7 +57,7 @@ As in the previous example, points in the IC chart are spread out more horizonta
 
 Again, further reducing dimensions continues this trend. Also in the post-deliberation chart, there is a clear shift to the right. 
 
-![case-4.0-dual-pca-15-4-dims-pearson.png](case-4.0-dual-pca-15-4-dims-pearson.png)
+![case-4.0-dual-pca-21-4-dims-pearson.png](../published-output/dual-pca/case-4.0-dual-pca-21-4-dims-pearson.png)
 
 This reveals an increasing level of **agreement** on considerations post-deliberation.
 
