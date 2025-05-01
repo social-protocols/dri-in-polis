@@ -12,8 +12,8 @@ The output of the experiments and a brief writeup of the methodology of each exp
 - [**Proof-of-Concept DRI in pol.is**](docs/poc-polis.md): Experiment with a variant of the DRI that uses pol.is data.
 - [**Random-Tagging Analysis**](docs/random-tagging.md): Experiment with randomly classifying statements as preferences/considerations to see if it makes a difference.
 - [**Statement Subset Selection Analysis**](docs/statement-subset.md): Experiment with using only a subset of statements -- the most or least controversial. 
-- [**Dual PCA**](docs/dual-PCA.md): Experiment on DRI using reduced-dimension data. 
-- [**Validity Test**](docs/validity-test.md): A validity test showing positive DRI can be produced from random data.
+- [**Dual PCA**](docs/dual-pca.md): Experiment on DRI using reduced-dimension data. 
+- [**Validity Test**](docs/validity-test/README.md): A validity test showing positive DRI can be produced from random data.
 
 ## Background and Attribution
 
