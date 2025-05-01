@@ -167,7 +167,7 @@ function dualPCA_plot(case, case_name, min_variance_explained::Float64, correlat
     end
 
     # Create standard DRI plot
-    p_standard = dri_plot_side_by_side(
+    p_standard = dri_plot_pre_post(
         ICs_standard[1][!, :Q], ICs_standard[1][!, :R],
         ICs_standard[2][!, :Q], ICs_standard[2][!, :R],
         "Standard DRI\n$original_F_dims/$original_Pref_dims dimensions",
@@ -175,7 +175,7 @@ function dualPCA_plot(case, case_name, min_variance_explained::Float64, correlat
     )
 
     # Create dual PCA DRI plot
-    p_dual = dri_plot_side_by_side(
+    p_dual = dri_plot_pre_post(
         ICs[1][!, :Q], ICs[1][!, :R],
         ICs[2][!, :Q], ICs[2][!, :R],
         "Reduced-Dimension DRI (Dual PCA, $correlation_method)\n$F_dimensions/$Pref_dimensions dimensions, $(round(100 * F_variance_explained, digits=0))/$(round(100 * Pref_variance_explained, digits=0))% σ² explained",
@@ -423,7 +423,7 @@ function dual_pca_main()
         y_positions .- spacing,
         results.standard_delta_dri,
         bar_width=bar_width,
-        label="Standard Delta DRI",
+        label="Standard",
         color=:blue,
         alpha=0.7,
         orientation=:h
@@ -432,7 +432,7 @@ function dual_pca_main()
         y_positions,
         results.delta_dri,
         bar_width=bar_width,
-        label="Dual PCA Delta DRI",
+        label="Dual-PCA",
         color=:red,
         alpha=0.7,
         orientation=:h

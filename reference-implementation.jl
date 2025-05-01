@@ -236,11 +236,12 @@ function main()
         end
 
         # --- Generate and save side-by-side DRI plot for this case ---
-        case_plot = dri_plot_side_by_side(
-            IC[!, :Q1], IC[!, :R1],
-            IC[!, :Q2], IC[!, :R2],
-            "DRI Plots: $(study_val) - $(case_val) (Case $(case))",
-            DRI_PRE, DRI_POST
+        case_plot = dri_plot_pre_post(
+            [
+                DataFrame(Q = IC[!, :Q1], R = IC[!, :R1]),
+                DataFrame(Q = IC[!, :Q2], R = IC[!, :R2]),
+            ],
+            "DRI Plots: $(study_val) - $(case_val) (Case $(case))"
         )
         savefig(case_plot, "$outdir/Figures/Case_$(case).png")
     end
@@ -266,11 +267,12 @@ function main()
     fig2_data = filter(row -> row[:StudyID] == 2, IC_Global)
     fig2_dri = filter(row -> row[:StudyID] == 2, DRI_Global)[1,:]
     
-    fig2 = dri_plot_side_by_side(
-        fig2_data[!, :Q1], fig2_data[!, :R1],
-        fig2_data[!, :Q2], fig2_data[!, :R2],
-        "Figure 2. DRI Plots: FNQCJ Case (Case $(fig2_dri.CaseID))",
-        fig2_dri.DRI_PRE, fig2_dri.DRI_POST
+    fig2 = dri_plot_pre_post(
+        [
+            DataFrame(Q = fig2_data[!, :Q1], R = fig2_data[!, :R1]),
+            DataFrame(Q = fig2_data[!, :Q2], R = fig2_data[!, :R2]),
+        ],
+        "Figure 2. DRI Plots: FNQCJ Case (Case $(fig2_dri.CaseID))"
     )
     savefig(fig2, "$outdir/Figures/Fig2.png")
 
@@ -282,11 +284,12 @@ function main()
     fig3_control_data = filter(row -> row[:StudyID] == 1 && row[:CaseId] == 0.1, IC_Global)
     fig3_control_dri = filter(row -> row[:StudyID] == 1 && row[:CaseID] == 0.1, DRI_Global)[1,:]
     
-    fig3_control = dri_plot_side_by_side(
-        fig3_control_data[!, :Q1], fig3_control_data[!, :R1],
-        fig3_control_data[!, :Q2], fig3_control_data[!, :R2],
-        "Figure 3. DRI Plots: Uppsala Speaks (Control) (Case $(fig3_control_dri.CaseID))",
-        fig3_control_dri.DRI_PRE, fig3_control_dri.DRI_POST
+    fig3_control = dri_plot_pre_post(
+        [
+            DataFrame(Q = fig3_control_data[!, :Q1], R = fig3_control_data[!, :R1]),
+            DataFrame(Q = fig3_control_data[!, :Q2], R = fig3_control_data[!, :R2]),
+        ],
+        "Figure 3. DRI Plots: Uppsala Speaks (Control) (Case $(fig3_control_dri.CaseID))"
     )
     savefig(fig3_control, "$outdir/Figures/Fig3_1Control.png")
 
@@ -294,11 +297,12 @@ function main()
     fig3_brief_data = filter(row -> row[:StudyID] == 1 && row[:CaseId] == 1, IC_Global)
     fig3_brief_dri = filter(row -> row[:StudyID] == 1 && row[:CaseID] == 1, DRI_Global)[1,:]
     
-    fig3_brief = dri_plot_side_by_side(
-        fig3_brief_data[!, :Q1], fig3_brief_data[!, :R1],
-        fig3_brief_data[!, :Q2], fig3_brief_data[!, :R2],
-        "Figure 3. DRI Plots: Uppsala Speaks Study (Group Briefing) (Case $(fig3_brief_dri.CaseID))",
-        fig3_brief_dri.DRI_PRE, fig3_brief_dri.DRI_POST
+    fig3_brief = dri_plot_pre_post(
+        [
+            DataFrame(Q = fig3_brief_data[!, :Q1], R = fig3_brief_data[!, :R1]),
+            DataFrame(Q = fig3_brief_data[!, :Q2], R = fig3_brief_data[!, :R2]),
+        ],
+        "Figure 3. DRI Plots: Uppsala Speaks Study (Group Briefing) (Case $(fig3_brief_dri.CaseID))"
     )
     savefig(fig3_brief, "$outdir/Figures/Fig3_2Brief.png")
 
@@ -306,11 +310,12 @@ function main()
     fig3_building_data = filter(row -> row[:StudyID] == 1 && row[:CaseId] == 2, IC_Global)
     fig3_building_dri = filter(row -> row[:StudyID] == 1 && row[:CaseID] == 2, DRI_Global)[1,:]
     
-    fig3_building = dri_plot_side_by_side(
-        fig3_building_data[!, :Q1], fig3_building_data[!, :R1],
-        fig3_building_data[!, :Q2], fig3_building_data[!, :R2],
-        "Figure 3. DRI Plots: Uppsala Speaks Study (Group Building Plus) (Case $(fig3_building_dri.CaseID))",
-        fig3_building_dri.DRI_PRE, fig3_building_dri.DRI_POST
+    fig3_building = dri_plot_pre_post(
+        [
+            DataFrame(Q = fig3_building_data[!, :Q1], R = fig3_building_data[!, :R1]),
+            DataFrame(Q = fig3_building_data[!, :Q2], R = fig3_building_data[!, :R2]),
+        ],
+        "Figure 3. DRI Plots: Uppsala Speaks Study (Group Building Plus) (Case $(fig3_building_dri.CaseID))"
     )
     savefig(fig3_building, "$outdir/Figures/Fig3_3Building.png")
 

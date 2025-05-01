@@ -1,36 +1,35 @@
 using StatsBase
 using Statistics
+using DataFrames
 
 
-"""
-    calculate_IC(F_df::DataFrame, Pref_df::DataFrame)
-
-Calculates the IC DataFrame from F_df and Pref_df by computing pairwise correlations.
-Returns: IC DataFrame with Q and R correlations
-"""
 function calculate_IC(F_df::DataFrame, Pref_df::DataFrame)
-    # Compute pairwise correlations
-    F_corr, rejects = pairwise_spearman(F_df)
-    Pref_corr, rejects = pairwise_spearman(Pref_df)
-    
-    # Create IC DataFrame
-    P_P = [row.Var1 * "-" * row.Var2 for row in eachrow(F_corr)]
-    to_number(s::String) = try parse(Float64, s) catch; NaN; end
-    P1 = [to_number(row.Var1) for row in eachrow(F_corr)]
-    P2 = [to_number(row.Var2) for row in eachrow(F_corr)]
-    
-    IC = DataFrame(P_P = P_P, P1 = P1, P2 = P2)
-    
-    # Add correlation columns directly without stage-specific naming
-    IC[!, :Q] = F_corr.Freq
-    IC[!, :R] = Pref_corr.Freq
+    return calculate_IC(Matrix(F_df), Matrix(Pref_df))
+end
+
+function calculate_IC(F::Matrix, Pref::Matrix)
+    return calculate_IC(F, Pref, :spearman)
+end
+
+function calculate_IC(F::Matrix, Pref::Matrix, method)
+    nusers = size(F)[2]
+
+    F_corr = pairwise_correlations(F, method)
+    Pref_corr = pairwise_correlations(Pref, method)
+
+    pairs = vcat([[(i,j) for j in 1:(i-1)] for i in 1:nusers]...)
+
+    P1 = getindex.(pairs, 1)
+    P2 = getindex.(pairs, 2)
+    P_P = string.(P1) .* "-" .* string.(P2) 
+    Q = [F_corr[pair[1], pair[2]] for pair in pairs]
+    R = [Pref_corr[pair[1], pair[2]] for pair in pairs]
+
+    IC = DataFrame(P_P = P_P, P1 = P1, P2 = P2, Q = Q, R = R)
     
     return IC
 end
 
-function calculate_IC(F::Matrix, Pref::Matrix)
-    return calculate_IC(DataFrame(F, :auto), DataFrame(Pref,:auto))
-end
 
 
 """
@@ -39,11 +38,21 @@ end
 Calculates the DRI using the IC DataFrame.
 Returns: DRI value
 """
-function calculate_dri(df::DataFrame; v1::Symbol=:R, v2::Symbol=:Q)
-    λ = 1 - sqrt(2)/2
-    diffs = abs.(df[!, v1] .- df[!, v2]) ./ sqrt(2)
+function calculate_dri(df::DataFrame; v1::Symbol=:R, v2::Symbol=:Q, center=false)
+
+    x = df[!, v1]
+    y = df[!, v2]
+    if center
+        x = ( x .- mean(x) )
+        y = ( y .- mean(y) )
+    end
+
+    λ = 1 - sqrt(2)/2  
+    diffs = abs.(x .- y) ./ sqrt(2)
     mean_diff = mean(skipmissing(diffs))
     dri = 2 * (((1 - mean_diff) - λ) / (1 - λ)) - 1
+
+
     return dri
 end
 
@@ -74,77 +83,14 @@ function calculate_individual_dri(IC::DataFrame)
 end
 
 
+function pairwise_correlations(mat::Matrix, method=:spearman)
+    nusers = size(mat)[2]
 
-function pairwise_spearman(df::DataFrame)
-    rejected_pairs = 0
-    cols = names(df)
-    result = DataFrame(Var1 = String[], Var2 = String[], Freq = Union{Missing, Float64}[])
-    for i in 1:length(cols)
-        for j in 1:(i-1)
-            x = df[!, cols[i]]
-            y = df[!, cols[j]]
-            valid_inds = [k for k in eachindex(x) if !ismissing(x[k]) && !ismissing(y[k])]
-            if length(valid_inds) <= 1
-                corr_val = missing
-            else
-                x_valid = [x[k] for k in valid_inds]
-                y_valid = [y[k] for k in valid_inds]
-                rx = float.(tiedrank(x_valid))
-                ry = float.(tiedrank(y_valid))
-                if length(rx) == 1 || length(ry) == 1
-                    corr_val = missing
-                else
-                    corr_val = cor(rx, ry)
-                    if isnan(corr_val)
-                        corr_val = missing
-                        rejected_pairs += 1
-                    end
-                end
-            end
-            push!(result, (cols[i], cols[j], corr_val))
-        end
-    end
-    return (result, rejected_pairs)
-end
+    return [
+        correlation(mat[:, i], mat[:, j], method)
+        for i in 1:nusers, j in 1:nusers
+    ]
 
-function calculate_IC(F::Matrix, Pref::Matrix, method)
-    # Compute pairwise correlations
-    # F_corr, rejects = pairwise_spearman(F_df)
-    # Pref_corr, rejects = pairwise_spearman(Pref_df)
-
-    F_corr = pairwise_correlations(F, method)
-    Pref_corr = pairwise_correlations(Pref, method)
-
-    
-    # Create IC DataFrame
-    P_P = [row.Var1 * "-" * row.Var2 for row in eachrow(F_corr)]
-    to_number(s::String) = try parse(Float64, s) catch; NaN; end
-    P1 = [to_number(row.Var1) for row in eachrow(F_corr)]
-    P2 = [to_number(row.Var2) for row in eachrow(F_corr)]
-    
-    IC = DataFrame(P_P = P_P, P1 = P1, P2 = P2)
-    
-    # Add correlation columns directly without stage-specific naming
-    IC[!, :Q] = F_corr.Freq
-    IC[!, :R] = Pref_corr.Freq
-    
-    return IC
-end
-
-function pairwise_correlations(mat::Matrix, method)
-    # cols = names(mat)
-    (n,m) = size(mat)
-    result = DataFrame(Var1 = String[], Var2 = String[], Freq = Union{Missing,Float64}[])
-    for i in 1:m
-        for j in 1:(i-1)
-            col_i = mat[:, i]
-            col_j = mat[:, j]
-
-            cval = correlation(col_i, col_j, method)
-
-            push!(result, (string(i), string(j), cval))
-        end
-    end
     return result
 end
 
@@ -197,7 +143,6 @@ function spearman(x, y)
     return cor(rx, ry)
 end
 
-
 # A rank correlation metric for the special case where we have a subset of the original ranked items. 
 function subset_rank_correlation(n_original, x_ranks::Vector{<:Real}, y_ranks::Vector{<:Real}) 
     if length(x_ranks) == 1
@@ -243,6 +188,26 @@ function magnitiude_weighted_cosine_similarity(A,B)
 
 end
 
+
+
+# ----------------------------------------------------------
+# 3. Standardization
+# ----------------------------------------------------------
+function standardize_rows(mat)
+    # mat_std = similar(mat, Float64)
+    # for j in 1:size(mat, 2)
+    #     col = mat[:, j]
+    #     mat_std[:, j] = (col .- mean(col)) ./ (std(col) .+ 1e-8)
+    # end
+    # return mat_std
+    means = mean(mat, dims=2)
+    stds = std(mat, dims=2)
+    return (mat .- means) ./ (stds .+ 1e-8), means, stds
+end
+
+function standardize_columns(mat)
+    return (mat .- mean(mat, dims=1)) ./ (std(mat, dims=1) .+ 1e-8)
+end
 
 
 
