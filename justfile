@@ -14,6 +14,9 @@ poc-polis METHOD="" THRESHOLD="":
 random-tagging N="" mode="" : 
    julia --project random-tagging.jl {{N}} {{mode}}
 
+validity-test:
+   julia --project validity-test.jl
+
 statement-subset: 
    julia --project statement-subset.jl
    
