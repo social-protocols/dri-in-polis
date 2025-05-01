@@ -29,15 +29,21 @@ function calculate_case_component_scores(case)
 	h_var = var(s[1] for s in cscores)
 	v_var = var(s[2] for s in cscores)
 
-	return (h_mean, v_mean, h_var, v_var)
+	return (cscores, h_mean, v_mean, h_var, v_var)
 end
+
+
+
 
 function component_scores_plot(case, case_name)
 	# Create a layout with a title plot and two subplots
 	title_plot = plot(title = "Component Scores Case $case ($case_name)", grid = false, showaxis = false, bottom_margin = -50Plots.px)
 
 	# Calculate scores
-	h_mean, v_mean, h_var, v_var = calculate_case_component_scores(case)
+	cscores, h_mean, v_mean, h_var, v_var = calculate_case_component_scores(case)
+		
+	# Calculate difference
+	difference = v_mean - h_mean
 	
 	# Get the raw component scores for scatter plot
 	ICs = []
@@ -48,39 +54,41 @@ function component_scores_plot(case, case_name)
 		push!(ICs, IC)
 	end
 
-	pre = [p for p in zip(ICs[1][!,:Q], ICs[1][!,:R])]
-	post = [p for p in zip(ICs[2][!,:Q], ICs[2][!,:R])]
-	cscores = [component_scores(pair[1], pair[2]) for pair in zip(pre, post)]
 
 	# Create the scatter plot
 	p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
+
+	x_vals = [s[1] for s in cscores]
+	y_vals = [s[2] for s in cscores]
 	
-	# Plot the scatter points
-	scatter!(p1, 
-		[s[1] for s in cscores], 
-		[s[2] for s in cscores],
-		xlims=(-1,1),
-		ylims=(-1,1),
-		color=:blue,
-		alpha=0.7,
-		label="Component Scores"
-	)
+	scatterWithRegression(p1, x_vals, y_vals, "vertical score against horizontal score")		
 	
 	# Add a diagonal line
-	plot!(p1, [-1,1], [-1,1], 
-		color=:black, 
-		linestyle=:dash, 
-		label="Diagonal"
-	)
+	# plot!(p1, [-1,1], [-1,1], 
+	# 	color=:black, 
+	# 	linestyle=:dash, 
+	# 	label="Diagonal"
+	# )
 	
 	# Add axes at 0
 	vline!(p1, [0], color=:black, linestyle=:dash, label="")
 	hline!(p1, [0], color=:black, linestyle=:dash, label="")
-	
+
+
+	# p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
+	# scatterWithRegression(p1, [s[1] for s in cscores], [s[2] for s in cscores], "vertical score against horizontal score")		
+
+	# p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
+	# scatterWithRegression(p1, ICs[2].Q, [s[2] for s in cscores],"vertical score against post-deliberation Q")		
+
+	p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
+	scatterWithRegression(p1, ICs[2].Q, ICs[2].R .- ICs[1].R,"vertical delta against post-deliberation Q")		
+
 	# Add mean point with error bars
 	scatter!(p1, [h_mean], [v_mean], 
 		color=:red, 
-		markersize=8, 
+		markertrokecolor=:red,
+		markersize=4, 
 		label="Mean Score",
 		xerr=[sqrt(h_var)],
 		yerr=[sqrt(v_var)],
@@ -100,7 +108,7 @@ function component_scores_plot(case, case_name)
 	ylabel!(p1, "Vertical Score")
 
 	# Combine all plots with the layout
-	p = plot(title_plot, p1, layout = @layout([A{0.1h}; B]), size=(1000,500))
+	p = plot(title_plot, p1, layout = @layout([A{0.1h}; B]), size=(500,500))
 
 	outdir = "local-output/component-scores/"
 	mkpath(outdir)
@@ -171,28 +179,17 @@ end
 
 function compute_deltas(a::Tuple{Float64, Float64}, b::Tuple{Float64, Float64})
 
-	# delta_v_new = abs(b[2] - b[1]) - abs(a[2] - b[1])
-	# delta_v_old = abs(b[2] - a[1]) - abs(a[2] - a[1])
 
-	# delta_h_new = abs(b[1] - b[2]) - abs(a[1] - b[2])
-	# delta_h_old = abs(b[1] - a[2]) - abs(a[1] - a[2])
+	# Forward delta formula, change of distance towards the diagonal, where the point on the diagonal is the projection of the *b*.
 
-	# return (mean([delta_h_old, delta_h_new]), mean([delta_v_old, delta_v_new]))
-
-
-	# delta_h = abs(b[1] - b[2]) - abs(a[1] - b[2])	
-
-	# delta_v = abs(b[1] - b[2]) - abs(b[1] - a[2])	
-
-
-
+	# Change in horizontal distance to the diagonal
 	delta_h = abs(b[1] - b[2]) - abs(a[1] - b[2])	
-	delta_v = abs(b[1] - b[2]) - abs(b[1] - a[2])
 
+	# Change in vertical distance to the diagonal
+	delta_v = abs(b[1] - b[2]) - abs(b[1] - a[2])
 
 	return (delta_h, delta_v)
 end
-
 
 function component_scores(a::Tuple{Float64, Float64}, b::Tuple{Float64, Float64})
 	ds = compute_deltas(a, b)
@@ -267,7 +264,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
 		case_name = case_data[1, :Case]
 		
 		# Calculate component scores
-		h_mean, v_mean, h_var, v_var = calculate_case_component_scores(case)
+		cscores, h_mean, v_mean, h_var, v_var = calculate_case_component_scores(case)
 		
 		# Calculate difference
 		difference = v_mean - h_mean
