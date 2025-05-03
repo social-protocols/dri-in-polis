@@ -55,7 +55,7 @@ Adding statements that everybody agrees on shifts the cluster upwards and to the
 
 #### 5.2: Keep the shape, break the logic.  
 
-Take some actual post‐deliberation survey data and shuffle everybody’s preferences (each individual gets the preference of a randomly selected) while leaving their consideration rankings intact.  
+Take some actual post‐deliberation survey data and shuffle everybody’s preferences (each individual gets the preference of another randomly selected individual) while leaving their consideration rankings intact.  
 
 The marginal distributions (the “shape”) stay the same, but any genuine alignment between reasons and preferences is destroyed. 
 
