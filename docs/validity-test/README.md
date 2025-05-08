@@ -99,9 +99,6 @@ This can happen spuriously with:
 1. **totally random data**, because random Spearman correlations concentrate around (0,0), and  
 2. corresponding levels of **overall agreement** on considerations and preferences (e.g. resampled or cross-topic data), even when no logic ties them together.  
 
-Although genuine internal consistency can also contribute to a high DRI, DRI cannot on its own distinguish between internal consistency and corresponding overall agreement.
-
-
 ### 7. Genuine Internal Consistency
 
 However, not all high DRI values are spurious. For example in the Valsamoggia case the high DRI can't be explained away so easily. Unlike in the resampled GBR Futures experiment or the Frankenstudy, the DRI of **falls** significantly to (0.31 ↦ -0.16) when the logical link between consideration and preferences is broken via resampling. A high Pearson's ρ of .66 adds further evidence of internal consistency. 
@@ -109,7 +106,11 @@ However, not all high DRI values are spurious. For example in the Valsamoggia ca
 ![Figure 2. Actual vs. resampled Valsamoggia (DRI 0.31 → -0.16)](./resampled-vs-standard-pre-post-17.0.png)
 
 
-## 8. Conclusions & Further Research
+## 8. Conclusions
+
+Although genuine internal consistency can also contribute to a high DRI, DRI cannot on its own distinguish between internal consistency and corresponding overall agreement.
+
+## 9. Further Research
 
 1. **Permutation tests for statistical significance.**  
     - For each of the 19 cases in Niemeyer et al. (2024), shuffle profiles 1,000–10,000 times to build a null distribution of DRI and the **DRI delta** (post – pre).  
