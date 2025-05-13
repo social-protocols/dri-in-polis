@@ -35,7 +35,7 @@ Under all three scenarios DRI can reach levels exceeding 0.5 even absent any log
 
 Imagine 100 people each randomly ranking 10 reasons and 10 preferences -- logic whatsoever.  
 
-With totally random ranking data, spearman ρs will be normally distributed around 0. This means that when you plot their Spearman ρs for considerations (x-axis) against preferences (y-axis), the cloud of points clusters around (0,0), which lies on the 45° diagonal. Hence the distance to the diagonal is small on average and the DRI is positive, as illustrated below.
+With totally random ranking data, spearman ρs will be normally distributed around 0. This means that when you plot Spearman ρs for considerations (x-axis) against preferences (y-axis), the cloud of points clusters around (0,0), which lies on the 45° diagonal. Hence the distance to the diagonal is small on average and the DRI is positive, as illustrated below.
 ![Figure 1. IC plot, 10×10 random data (DRI = 0.23)](./random-diffuse.png)
 
 

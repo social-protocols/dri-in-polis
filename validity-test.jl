@@ -3,6 +3,8 @@ using CSV
 include("dri-plot.jl")
 include("prepare-data.jl")
 
+outdir = "docs/validity-test"
+
 function complete_agreement(n, m)
     hcat([1:n for i in 1:m]...)
 end
@@ -35,7 +37,7 @@ function random_diffuse()
 
     p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
 
-    dri_plot(p1[1], IC.Q, IC.R, "IC Chart, random considerations and preferences\n$nUsers users, $nX considerations, $nY preferences", DRI)
+    dri_plot(p1[1], IC.Q, IC.R, "DRI Plot, random rankings\n$nUsers users, $nX considerations, $nY preferences", DRI; show_pearsons=true)
     p1
 end
 
@@ -58,7 +60,35 @@ function random_concentrated()
 
     p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
 
-    dri_plot(p1[1], IC.Q, IC.R, "IC Chart, random considerations and preferences\n$nUsers users, $nX considerations, $nY preferences", DRI)
+    dri_plot(p1[1], IC.Q, IC.R, "DRI Plot, random rankings\n$nUsers users, $nX considerations, $nY preferences", DRI; show_pearsons=true)
+    p1
+end
+
+
+# random but large range
+function random_corresponding_agreement()
+    Random.seed!(123)
+    nUsers = 100 
+    nRandomX = 10
+    nRandomY = 10
+    nConsensusx = 10
+    nConsensusY = 10
+
+    # random numbers between
+
+    # Half random, half complete agreement
+    X = [ completely_random(nRandomX, nUsers);
+          nRandomX .+ complete_agreement(nConsensusx, nUsers) ]
+    Y = [ completely_random(nRandomY, nUsers);
+          nRandomY .+ complete_agreement(nConsensusY, nUsers) ]
+
+
+
+    IC = calculate_IC(X, Y)
+    DRI = calculate_dri(IC)
+
+    p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
+    dri_plot(p1[1], IC.Q, IC.R, "DRI Plot, mix random / complete agreement\n$nUsers users\nConsiderations: $nRandomX random, $nConsensusx complete agreement\nPreferences: $nRandomY random, $nConsensusY complete agreement", DRI; show_pearsons=true)
     p1
 end
 
@@ -69,8 +99,6 @@ function concentrated_top()
     nX = 100
     nY = 100
 
-    # random numbers between
-
     X = completely_random(nX, nUsers)
     Y = complete_agreement(nY, nUsers)
 
@@ -79,7 +107,7 @@ function concentrated_top()
 
     p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
 
-    dri_plot(p1[1], IC.Q, IC.R, "IC Chart, random considerations, complete agreement on preferences\n$nUsers users, $nX considerations, $nY preferences", DRI)
+    dri_plot(p1[1], IC.Q, IC.R, "DRI Plot, random considerations, complete agreement on preferences\n$nUsers users, $nX considerations, $nY preferences", DRI; show_pearsons=true)
     p1
 end
 
@@ -88,8 +116,6 @@ function concentrated_top_bottom()
     nUsers = 100
     nX = 100
     nY = 100
-
-    # random numbers between
 
     X = hcat([shuffle(1:nX) for i in 1:nUsers]...)
     X = completely_random(nX, nUsers)
@@ -100,37 +126,10 @@ function concentrated_top_bottom()
 
     p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
 
-    dri_plot(p1[1], IC.Q, IC.R, "IC Chart, random considerations, completely polarized preferences\n$nUsers users, $nX considerations, $nY preferences", DRI)
+    dri_plot(p1[1], IC.Q, IC.R, "DRI Plot, random considerations, completely polarized preferences\n$nUsers users, $nX considerations, $nY preferences", DRI; show_pearsons=true)
     p1
 end
 
-
-    # function histogram_with_normal(Xs)
-
-    #     h = histogram(vec(Xs), 
-    #         normalize=:pdf,
-    #         bins=30,
-    #         alpha=0.5,
-    #         # label="X Rankings",
-    #         title="Distribution of Rankings vs Normal",
-    #         xlabel="Rank Value",
-    #         ylabel="Density"
-    #     )
-    #     nx = length(Xs)
-
-    #     # Add normal distribution curve
-    #     x_range = range(1, nX, length=100)
-    #     μ = mean(vec(Xs))
-    #     σ = std(vec(Xs))
-
-    #     # plot(x -> pdf(Normal(μ, σ), x))
-
-    #     # normal_pdf = [pdf(Normal(μ, σ), x) for x in x_range]
-    #     plot!(h, x -> pdf(Normal(μ, σ), x), label="Normal", lw=2)
-    #     display(h)
-    # end
-    # Xs = IC.Q
-    # histogram_with_normal(IC.Q)
 
 function resample_case(data, case)
     Random.seed!(123)
@@ -147,12 +146,6 @@ function resample_case(data, case)
         n_pairs = size(IC.R, 1)
         Pref_cor = pairwise_correlations(Matrix(Pref_df)) 
         IC.R = [ Pref_cor[resample_indices[IC.P1[i]], resample_indices[IC.P2[i]]] for i in 1:n_pairs]
-
-        # n_pairs1 = size(IC)[1]
-        # resample_indices = shuffle(1:n_pairs)
-        # IC.R = IC.R[resample_indices] 
-
-
 
         push!(ICs, IC)
     end
@@ -296,7 +289,6 @@ end
 
 data = CSV.read("Input/Data1_Raw_Input.csv", DataFrame)
 
-outdir = "docs/validity-check"
 
 p = random_diffuse()
 # save plot
@@ -305,6 +297,10 @@ savefig(p, "$outdir/random-diffuse.png")
 p = random_concentrated()
 # save plot
 savefig(p, "$outdir/random-concentrated.png")
+
+p = random_corresponding_agreement()
+# save plot
+savefig(p, "$outdir/random-corresponding-agreement.png")
 
 
 p = resampled_plot(data, 3.0, 2)
@@ -330,6 +326,13 @@ p = resampled_against_standard_plot(data, 18.0, 2)
 savefig(p, "$outdir/resampled-against-standard-18.0.png")
 
 
+p = resampled_against_standard_plot(data, 12.0, 2)
+savefig(p, "$outdir/resampled-against-standard-12.0.png")
+
+
+p = resampled_against_standard_plot(data, 13.0, 2)
+savefig(p, "$outdir/resampled-against-standard-13.0.png")
+
 
 p = resampled_plot_pre_post(data, 3.0)
 # save plot
@@ -346,12 +349,12 @@ savefig(p, "$outdir/frankenstudy-18.0-3.0.png")
 p = resampled_vs_standard_pre_post_plot(data, 18.0)
 savefig(p, "$outdir/resampled-vs-standard-pre-post-18.0.png")
 
+p = resampled_vs_standard_pre_post_plot(data, 12.0)
+savefig(p, "$outdir/resampled-vs-standard-pre-post-12.0.png")
+
 
 p = resampled_vs_standard_pre_post_plot(data, 3.0)
 savefig(p, "$outdir/resampled-vs-standard-pre-post-3.0.png")
 
-
-p = resampled_against_standard_plot(data, 17.0, 2)
-savefig(p, "$outdir/resampled-vs-standard-pre-post-17.0.png")
 
 
