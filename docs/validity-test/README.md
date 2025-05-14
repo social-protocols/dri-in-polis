@@ -9,7 +9,7 @@ The **Deliberative Reason Index (DRI)**, as proposed by Niemeyer, Veri, Dryzek, 
 
 ## 2. What DRI Measures  
 
-- **Conceptual aim:** DRI is designed to capture *intersubjective consistency*—the idea that two participants who similarly rank a set of “consideration” statements should also similarly rank preferences, and vice versa.  
+- **Conceptual aim:** DRI is designed to capture intersubjective consistency as the degree to which participants who similarly rank a set of “consideration” statements also similarly rank preferences, and vice versa.  
 - **Why it matters:** Unlike measures of mere preference convergence or procedural quality, DRI focuses on the coherence between *reasons* and *conclusions*, a core ideal in deliberative‐democratic theory.
 
 ## 3. Brief Method: Calculating DRI  
@@ -24,7 +24,7 @@ The **Deliberative Reason Index (DRI)**, as proposed by Niemeyer, Veri, Dryzek, 
 To test whether high DRI is unique to high intersubjective consistency, we apply the same calculation to three contrived data scenarios:  
 
 - **A. Purely random data**.  
-- **B. Resampled real data** (considerations and preferences randomly shuffled across participants).  
+- **B. Shuffled real data** (considerations and preferences randomly shuffled across participants).  
 - **C. Mismatched topics** (considerations on Issue X paired with preferences on Issue Y).  
 
 Under all three scenarios DRI can reach levels exceeding 0.5 even absent any logical link between considerations and preferences. These results are fully [reproducible](https://github.com/social-protocols/dri-in-polis).
@@ -33,7 +33,7 @@ Under all three scenarios DRI can reach levels exceeding 0.5 even absent any log
 
 #### 5.1 Pure noise still hugs the diagonal.  
 
-Imagine 100 people each randomly ranking 10 reasons and 10 preferences -- logic whatsoever.  
+Imagine 100 people each randomly ranking 10 reasons and 10 preferences -- no logic whatsoever.  
 
 With totally random ranking data, spearman ρs will be normally distributed around 0. This means that when you plot Spearman ρs for considerations (x-axis) against preferences (y-axis), the cloud of points clusters around (0,0), which lies on the 45° diagonal. Hence the distance to the diagonal is small on average and the DRI is positive, as illustrated below.
 ![Figure 1. IC plot, 10×10 random data (DRI = 0.23)](./random-diffuse.png)
@@ -55,13 +55,13 @@ Adding statements that everybody agrees on shifts the cluster upwards and to the
 
 #### 5.2: Keep the shape, break the logic.  
 
-Take some actual post‐deliberation survey data and shuffle everybody’s preferences (each individual gets the preference of a randomly selected) while leaving their consideration rankings intact.  
+Shuffle everybody’s preferences (each individual gets the preference of a different randomly selected individual) while leaving their consideration rankings intact.
 
 The marginal distributions (the “shape”) stay the same, but any genuine alignment between reasons and preferences is destroyed. 
 
 Yet in the case below (the GBR future study) the DRI only falls from **0.65** to about **0.63**.
 
-![Figure 2. Actual vs. resampled GBR Futures (DRI 0.49 → 0.34)](./resampled-against-standard-18.0.png)
+![Figure 2. Actual vs. shuffled GBR Futures (DRI 0.49 → 0.34)](./shuffled-against-standard-18.0.png)
 
 **Objection again:** “Okay, but the DRI is high because there is consistency in overall agreement levels.”
 
@@ -82,7 +82,7 @@ Pre-deliberation DRI of 0.09 jumps to 0.55 post deliberation.
 |-------------------|---------|--------------------|---------------|------------------------|
 | Random (10×10)    | 100     | 10 × 10            | 0.23          | Pure noise             |
 | Random (100×100)  | 100     | 100 × 100          | 0.77          | Tighter clustering     |
-| Resampled GBR Futures   | 7     | 35 × 7             | 0.63          | Permuted preferences   |
+| Shuffled GBR Futures   | 7     | 35 × 7             | 0.63          | Permuted preferences   |
 | Franken GBR→FNQCJ | 7      | 35 × 5             | 0.55          | Cross-topic pairing    |
 
 In all of these experiments, preferences are drawn **randomly** from some distribution -- meaning there is no possible logic linking rankings of considerations to preferences.
@@ -97,16 +97,16 @@ The cluster will be near the diagonal whenever the horizontal mean is approximat
 This can happen spuriously with:
 
 1. **totally random data**, because random Spearman correlations concentrate around (0,0), and  
-2. corresponding levels of **overall agreement** on considerations and preferences (e.g. resampled or cross-topic data), even when no logic ties them together.  
+2. corresponding levels of **overall agreement** on considerations and preferences (e.g. shuffled or cross-topic data), even when no logic ties them together.  
 
 Although genuine intersubjective consistency can also contribute to a high DRI, DRI cannot on its own distinguish between intersubjective consistency and corresponding overall agreement.
 
 
 ### 7. Genuine Intersubjective Consistency
 
-However, not all high DRI values are spurious. For example in the Fremantle Bridge case the high DRI can't be explained away so easily. Unlike in the resampled GBR Futures experiment or the Frankenstudy, the DRI of **falls** significantly to (0.34 ↦ 0.06) when the logical link between consideration and preferences is broken via resampling. A high Pearson's ρ of .69 adds further evidence of intersubjective consistency. 
+However, not all high DRI values are spurious. For example in the Fremantle Bridge case the high DRI can't be explained away so easily. Unlike in the shuffled GBR Futures experiment or the Frankenstudy, the DRI **falls** significantly to (0.34 ↦ 0.06) when the logical link between consideration and preferences is broken via shuffling. A high Pearson's ρ of .69 adds further evidence of intersubjective consistency. 
 
-![Figure 2. Actual vs. resampled Fremantle Bridge](./resampled-vs-standard-pre-post-12.0.png)
+![Figure 2. Actual vs. shuffled Fremantle Bridge](./shuffled-vs-standard-pre-post-12.0.png)
 
 
 ## 8. Conclusions & Further Research

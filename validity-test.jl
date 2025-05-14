@@ -131,11 +131,11 @@ function concentrated_top_bottom()
 end
 
 
-function resample_case(data, case)
+function shuffle_case(data, case)
     Random.seed!(123)
 
     n_users = size(filter(r -> r.CaseID == case && r.StageID == 1, data))[1]
-    resample_indices = shuffle(1:n_users)
+    shuffle_indices = shuffle(1:n_users)
 
 	ICs = []
     for stage in 1:2
@@ -145,7 +145,7 @@ function resample_case(data, case)
 
         n_pairs = size(IC.R, 1)
         Pref_cor = pairwise_correlations(Matrix(Pref_df)) 
-        IC.R = [ Pref_cor[resample_indices[IC.P1[i]], resample_indices[IC.P2[i]]] for i in 1:n_pairs]
+        IC.R = [ Pref_cor[shuffle_indices[IC.P1[i]], shuffle_indices[IC.P2[i]]] for i in 1:n_pairs]
 
         push!(ICs, IC)
     end
@@ -171,12 +171,12 @@ function frankenstudy(data, case1, case2)
     n_users1 = size(filter(r -> r.CaseID == case1 && r.StageID == 1, data))[1]
     n_users2 = size(filter(r -> r.CaseID == case2 && r.StageID == 2, data))[1]
     # If n_users2 < n_users1, we need multiple shuffles to get enough indices
-    resample_indices = Int[]
-    while length(resample_indices) < n_users1
-        append!(resample_indices, shuffle(1:n_users2))
+    shuffle_indices = Int[]
+    while length(shuffle_indices) < n_users1
+        append!(shuffle_indices, shuffle(1:n_users2))
     end
     # Take just the first n_users1 indices
-    resample_indices = resample_indices[1:n_users1]
+    shuffle_indices = shuffle_indices[1:n_users1]
 
 	ICs = []
     for stage in 1:2
@@ -186,7 +186,7 @@ function frankenstudy(data, case1, case2)
         data_filtered2 = filter(r -> r.CaseID == case2 && r.StageID == stage, data)
         _, Pref_df = prepare_data(data_filtered2)
 
-        Pref_df_sampled = Matrix(Pref_df)[:,resample_indices]
+        Pref_df_sampled = Matrix(Pref_df)[:,shuffle_indices]
 
 	    IC = calculate_IC(Matrix(F_df), Pref_df_sampled)
         push!(ICs, IC)
@@ -213,15 +213,15 @@ function frankenstudy_method2(data, case1, case2)
         n_pairs2 = size(IC_case2)[1]
 
 
-        resample_indices = Int[]
-        while length(resample_indices) < n_pairs1
-            append!(resample_indices, shuffle(1:n_pairs2))
+        shuffle_indices = Int[]
+        while length(shuffle_indices) < n_pairs1
+            append!(shuffle_indices, shuffle(1:n_pairs2))
         end
         # Take just the first n_pairs1 indices
-        resample_indices = resample_indices[1:n_pairs1]
+        shuffle_indices = shuffle_indices[1:n_pairs1]
 
         IC = copy(IC_case1)
-        IC.R = IC_case2.R[resample_indices]
+        IC.R = IC_case2.R[shuffle_indices]
 
         push!(ICs, IC)
     end
@@ -230,10 +230,10 @@ function frankenstudy_method2(data, case1, case2)
 end
 
 
-function resampled_plot_pre_post(data, case)
+function shuffled_plot_pre_post(data, case)
     case_name = get_case_name(data, case)
-	ICs = resample_case(data, case)
-	dri_plot_pre_post(ICs, "DRI Plot (Resampled): $case_name")
+	ICs = shuffle_case(data, case)
+	dri_plot_pre_post(ICs, "DRI Plot (Shuffled): $case_name")
 end
 
 function regular_plot(data, case, stage)
@@ -246,22 +246,22 @@ function regular_plot(data, case, stage)
 end
 
 
-function resampled_plot(data, case, stage)
+function shuffled_plot(data, case, stage)
     case_name = get_case_name(data, case)
-    ICs = resample_case(data, case)
+    ICs = shuffle_case(data, case)
     p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
 
     stage_name = stage == 1 ? "Pre-Deliberation" : "Post-Deliberation"
-    dri_plot(p1[1], ICs[stage].Q, ICs[stage].R, "DRI Plots (Resampled): $case_name $stage_name", calculate_dri(ICs[stage]))
+    dri_plot(p1[1], ICs[stage].Q, ICs[stage].R, "DRI Plots (Shuffled): $case_name $stage_name", calculate_dri(ICs[stage]))
 end
 
-function resampled_against_standard_plot(data, case, stage)
+function shuffled_against_standard_plot(data, case, stage)
     case_name = get_case_name(data, case)
-    ICs_resampled = resample_case(data, case)
+    ICs_shuffled = shuffle_case(data, case)
     ICs = get_ICs(data, case)
 
     stage_name = stage == 1 ? "Pre-Deliberation" : "Post-Deliberation"
-    dri_plot_side_by_side([ICs[stage], ICs_resampled[stage]], "DRI Plot: $case_name $stage_name", ["Actual", "Resampled"]; show_pearsons=true)
+    dri_plot_side_by_side([ICs[stage], ICs_shuffled[stage]], "DRI Plot: $case_name $stage_name", ["Actual", "Shuffled"]; show_pearsons=true)
 end
 
 
@@ -270,16 +270,16 @@ function frankenstudy_plot(data, case1, case2)
     case1_name = get_case_name(data, case1)
     case2_name = get_case_name(data, case2)
 	ICs = frankenstudy_method2(data, case1, case2)
-	dri_plot_pre_post(ICs, "DRI Plots (Cross-Case Resampled): $case1_name against $case2_name"; show_pearsons=true)
+	dri_plot_pre_post(ICs, "DRI Plots (Cross-Case Shuffled): $case1_name against $case2_name"; show_pearsons=true)
 end
 
-function resampled_vs_standard_pre_post_plot(data, case)
+function shuffled_vs_standard_pre_post_plot(data, case)
 
     case_name = get_case_name(data, case)
-    ICs_resampled = resample_case(data, case)
+    ICs_shuffled = shuffle_case(data, case)
     ICs = get_ICs(data, case)
 
-    DRI_Comparison_Plot(case, case_name, ICs, ICs_resampled, "Standard v. Resampled", "Resampled"; show_pearsons=true)
+    DRI_Comparison_Plot(case, case_name, ICs, ICs_shuffled, "Standard v. Shuffled", "Shuffled"; show_pearsons=true)
 
 end
 
@@ -303,13 +303,13 @@ p = random_corresponding_agreement()
 savefig(p, "$outdir/random-corresponding-agreement.png")
 
 
-p = resampled_plot(data, 3.0, 2)
+p = shuffled_plot(data, 3.0, 2)
 # save plot
-savefig(p, "$outdir/resampled-3.0.png")
+savefig(p, "$outdir/shuffled-3.0.png")
 
-p = resampled_plot(data, 18.0, 2)
+p = shuffled_plot(data, 18.0, 2)
 # save plot
-savefig(p, "$outdir/resampled-18.0.png")
+savefig(p, "$outdir/shuffled-18.0.png")
 
 
 p = regular_plot(data, 3.0, 2)
@@ -317,44 +317,44 @@ p = regular_plot(data, 3.0, 2)
 savefig(p, "$outdir/regular-3.0.png")
 
 
-p = resampled_against_standard_plot(data, 3.0, 2)
+p = shuffled_against_standard_plot(data, 3.0, 2)
 # save plot
-savefig(p, "$outdir/resampled-against-standard-3.0.png")
+savefig(p, "$outdir/shuffled-against-standard-3.0.png")
 
-p = resampled_against_standard_plot(data, 18.0, 2)
+p = shuffled_against_standard_plot(data, 18.0, 2)
 # save plot
-savefig(p, "$outdir/resampled-against-standard-18.0.png")
+savefig(p, "$outdir/shuffled-against-standard-18.0.png")
 
 
-p = resampled_against_standard_plot(data, 12.0, 2)
-savefig(p, "$outdir/resampled-against-standard-12.0.png")
+p = shuffled_against_standard_plot(data, 12.0, 2)
+savefig(p, "$outdir/shuffled-against-standard-12.0.png")
 
 
-p = resampled_against_standard_plot(data, 13.0, 2)
-savefig(p, "$outdir/resampled-against-standard-13.0.png")
+p = shuffled_against_standard_plot(data, 13.0, 2)
+savefig(p, "$outdir/shuffled-against-standard-13.0.png")
 
 
-p = resampled_plot_pre_post(data, 3.0)
+p = shuffled_plot_pre_post(data, 3.0)
 # save plot
-savefig(p, "$outdir/resampled-pre-post-3.0.png")
+savefig(p, "$outdir/shuffled-pre-post-3.0.png")
 
-p = resampled_plot_pre_post(data, 18.0)
+p = shuffled_plot_pre_post(data, 18.0)
 # save plot
-savefig(p, "$outdir/resampled-pre-post-18.0.png")
+savefig(p, "$outdir/shuffled-pre-post-18.0.png")
 
 p = frankenstudy_plot(data, 18.0, 3.0)
 # save plot
 savefig(p, "$outdir/frankenstudy-18.0-3.0.png")
 
-p = resampled_vs_standard_pre_post_plot(data, 18.0)
-savefig(p, "$outdir/resampled-vs-standard-pre-post-18.0.png")
+p = shuffled_vs_standard_pre_post_plot(data, 18.0)
+savefig(p, "$outdir/shuffled-vs-standard-pre-post-18.0.png")
 
-p = resampled_vs_standard_pre_post_plot(data, 12.0)
-savefig(p, "$outdir/resampled-vs-standard-pre-post-12.0.png")
+p = shuffled_vs_standard_pre_post_plot(data, 12.0)
+savefig(p, "$outdir/shuffled-vs-standard-pre-post-12.0.png")
 
 
-p = resampled_vs_standard_pre_post_plot(data, 3.0)
-savefig(p, "$outdir/resampled-vs-standard-pre-post-3.0.png")
+p = shuffled_vs_standard_pre_post_plot(data, 3.0)
+savefig(p, "$outdir/shuffled-vs-standard-pre-post-3.0.png")
 
 
 
