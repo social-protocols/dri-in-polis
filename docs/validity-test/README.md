@@ -132,4 +132,6 @@ We welcome co-authors interested in advancing a more robust measure of deliberat
 
 - https://x.com/johnwarden
 - https://bsky.app/profile/jonathanwarden.bsky.social
+- mail@social-protocols.org
+- telegram: @jonathanrwarden 
 
