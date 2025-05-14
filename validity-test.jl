@@ -37,7 +37,7 @@ function random_diffuse()
 
     p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
 
-    dri_plot(p1[1], IC.Q, IC.R, "DRI Plot, random rankings\n$nUsers users, $nX considerations, $nY preferences", DRI; show_pearsons=true)
+    dri_plot(p1[1], IC.Q, IC.R, "DRI Plot: Random Rankings\n$nUsers users, $nX considerations, $nY preferences", DRI; show_pearsons=true)
     p1
 end
 
@@ -60,7 +60,7 @@ function random_concentrated()
 
     p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
 
-    dri_plot(p1[1], IC.Q, IC.R, "DRI Plot, random rankings\n$nUsers users, $nX considerations, $nY preferences", DRI; show_pearsons=true)
+    dri_plot(p1[1], IC.Q, IC.R, "DRI Plot: Random Rankings\n$nUsers users, $nX considerations, $nY preferences", DRI; show_pearsons=true)
     p1
 end
 
@@ -88,7 +88,7 @@ function random_corresponding_agreement()
     DRI = calculate_dri(IC)
 
     p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
-    dri_plot(p1[1], IC.Q, IC.R, "DRI Plot, mix random / complete agreement\n$nUsers users\nConsiderations: $nRandomX random, $nConsensusx complete agreement\nPreferences: $nRandomY random, $nConsensusY complete agreement", DRI; show_pearsons=true)
+    dri_plot(p1[1], IC.Q, IC.R, "DRI Plot: Mix Random / Complete Agreement\n$nUsers users\nConsiderations: $nRandomX random, $nConsensusx complete agreement\nPreferences: $nRandomY random, $nConsensusY complete agreement", DRI; show_pearsons=true)
     p1
 end
 
@@ -107,7 +107,7 @@ function concentrated_top()
 
     p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
 
-    dri_plot(p1[1], IC.Q, IC.R, "DRI Plot, random considerations, complete agreement on preferences\n$nUsers users, $nX considerations, $nY preferences", DRI; show_pearsons=true)
+    dri_plot(p1[1], IC.Q, IC.R, "DRI Plot: Random Considerations, Complete Agreement on Preferences\n$nUsers users, $nX considerations, $nY preferences", DRI; show_pearsons=true)
     p1
 end
 
@@ -126,7 +126,7 @@ function concentrated_top_bottom()
 
     p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
 
-    dri_plot(p1[1], IC.Q, IC.R, "DRI Plot, random considerations, completely polarized preferences\n$nUsers users, $nX considerations, $nY preferences", DRI; show_pearsons=true)
+    dri_plot(p1[1], IC.Q, IC.R, "DRI Plot: Random Considerations, Completely Polarized Preferences\n$nUsers users, $nX considerations, $nY preferences", DRI; show_pearsons=true)
     p1
 end
 
@@ -270,7 +270,7 @@ function frankenstudy_plot(data, case1, case2)
     case1_name = get_case_name(data, case1)
     case2_name = get_case_name(data, case2)
 	ICs = frankenstudy_method2(data, case1, case2)
-	dri_plot_pre_post(ICs, "DRI Plots (Cross-Case Shuffled): $case1_name against $case2_name"; show_pearsons=true)
+	dri_plot_pre_post(ICs, "DRI Plots (Cross-Case): $case1_name against $case2_name"; show_pearsons=true)
 end
 
 function shuffled_vs_standard_pre_post_plot(data, case)

@@ -32,13 +32,13 @@ The supplementary materials (including the original R code and input data files)
 2. **Clone the Repository:**  
    ```bash
    git clone https://github.com/social-protocols/dri-in-polis.git
-   cd dri-julia
+   cd dri-in-polis
    ```
 
 3. **Install Dependencies:**
-
+    ```bash
     julia --project -e 'using Pkg; Pkg.instantiate()'
-
+    ```
 ## Downloading Data
 
 ### Downloading Data for Reference Implementation
@@ -106,9 +106,9 @@ This will place output into local-output/statement-subset
 
 Run:
 
-    julia --project validity-check.jl
+    julia --project validity-test.jl
 
-This will place output into local-output/statement-subset
+This will place output into docs/validity-test
 
 
 ## License
