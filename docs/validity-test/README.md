@@ -109,7 +109,7 @@ However, not all high DRI values are spurious. For example in the Fremantle Brid
 ![Figure 2. Actual vs. shuffled Fremantle Bridge](./shuffled-vs-standard-pre-post-12.0.png)
 
 
-## 8. Conclusions & Further Research
+## 8. Suggestions Further Research
 
 1. **Permutation tests for statistical significance.**  
     - For each of the 19 cases in Niemeyer et al. (2024), shuffle profiles 1,000–10,000 times to build a null distribution of DRI and the **DRI delta** (post – pre).  
