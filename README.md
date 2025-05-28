@@ -14,6 +14,7 @@ The output of the experiments and a brief writeup of the methodology of each exp
 - [**Statement Subset Selection Analysis**](docs/statement-subset.md): Experiment with using only a subset of statements -- the most or least controversial. 
 - [**Dual PCA**](docs/dual-pca.md): Experiment on DRI using reduced-dimension data. 
 - [**Validity Test**](docs/validity-test/README.md): A validity test showing positive DRI can be produced from random data.
+- [**Permuted Preferences**](docs/permuted-preferences.md): A permutation test compare DRI values against the null hypothesis that there is no ISC.
 
 ## Background and Attribution
 
