@@ -102,7 +102,7 @@ Although high intersubjective consistency can also contribute to a high DRI, DRI
 
 ### 7. Genuine Intersubjective Consistency
 
-However, not all high DRI values are spurious. For example, in the Fremantle Bridge case, the high DRI can't be explained by the above possibilities (the nature of Spearman correlations or corresponding overall agreement). Unlike in the shuffled GBR Futures experiment or the Franken-case, the DRI **falls** significantly (0.34 → 0.06) when the logical link between considerations and preferences is broken via shuffling. A high Spearman's *ρ* of 0.69 adds further evidence of intersubjective consistency.
+However, not all high DRI values are spurious. For example, in the Fremantle Bridge case, the high DRI can't be explained by the above possibilities (the nature of Spearman correlations or corresponding overall agreement). Unlike in the shuffled GBR Futures experiment or the Franken-case, the DRI **falls** significantly (0.34 → 0.06) when the logical link between considerations and preferences is broken via shuffling. A high Pearson's *ρ* of 0.69 adds further evidence of intersubjective consistency.
 
 ![Figure 2. Actual vs. shuffled Fremantle Bridge](./shuffled-vs-standard-pre-post-12.0.png)
 
@@ -113,7 +113,7 @@ However, not all high DRI values are spurious. For example, in the Fremantle Bri
     - For each of the 19 cases in Niemeyer et al. (2023), shuffle profiles 1,000–10,000 times to build a null distribution of DRI and the **DRI delta** (change from pre- to post-deliberation).
     - Compute p-values: *Is the observed increase in DRI larger than expected if there was no intersubjective consistency?*
 2. **Domain-restriction simulations.**
-    - Simulate groups with a known linear logic linking considerations to preferences. Vary the range of generated *ρ*<sub>C</sub> to test how DRI and Pearson's *r* respond.
+    - Simulate groups with a known linear logic linking considerations to preferences. Vary the range of generated *ρ*<sub>C</sub> to test how DRI and Pearson's *ρ* respond. 
 3. **Cross-case meta-analysis.**
     - Apply these tests across all 19 forums; examine whether design features (group-building, complexity, decision-impact) predict *statistically significant* gains in intersubjective consistency.
 4. **Refining the index.**
