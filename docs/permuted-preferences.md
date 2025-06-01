@@ -11,17 +11,17 @@ In this experiment, we use resampling to estimate the distribution of DRI values
 We calculate DRI using the method described in the supplementary materials to the paper:
 
 1. **Survey data**: Each participant provides (1) an ordinal ranking of ~20–40 consideration statements, and (2) a ranking of ≤10 preference statements.
-2. **Intersubjective Agreement (ISA)**: For each pair of participants (i, j), compute **intersubjective agreement (ISA)** using Spearman’s ρ for their consideration-rankings (ρ<sub>C</sub>) and for their preference-rankings (ρ<sub>P</sub>).
+2. **Intersubjective Agreement (ISA)**: For each pair of participants (i, j), compute **ISA** using Spearman’s ρ for their consideration-rankings (ρ<sub>C</sub>) and for their preference-rankings (ρ<sub>P</sub>).
 3. **Consistency distance**: For each pair, plot (ρ<sub>C</sub>, ρ<sub>P</sub>) on an x–y scatter; measure each point’s orthogonal distance to the 45° line (y = x); small distances indicate high ISC.
 4. **Aggregate**: Average these distances for each individual (yielding DRI<sub>Ind</sub> scaled to [–1, +1]) and then across the group to obtain a single **group DRI**.
 
 ## 3. Experiment
 
-DRI is designed to measure intersubjective-consistency, a group-level feature where "the extent to which deliberators disagree is constrained by a shared 'logic,' such that their diverging values or beliefs should yield a comparable degree of divergence in expressed preferences.” (Niemeyer et al., 2023, p. 4). Thus intersubjective-consistency should manifest as a correlation between considerations-ISA and preferences-ISA. DRI is designed to measure this correlation in a way that overcomes the problem of domain restriction [todo: reference C.1 in supplementary matrials). It follows that the absence of any correlation (e.g. statistical independence) implies absence of ISC.
+DRI is designed to measure intersubjective-consistency (ISC), a group-level feature which, when maximized, means that "the extent to which deliberators disagree is constrained by a shared 'logic,' such that their diverging values or beliefs should yield a comparable degree of divergence in expressed preferences.” (Niemeyer et al., 2023, p. 4). Thus, ISC should manifest as a correlation between considerations-ISA and preferences-ISA. DRI is designed to measure this correlation in a way that overcomes the problem of domain restriction (***todo: reference C.1 in supplementary matrials***). It follows that the absence of any correlation (e.g. statistical independence) between considerations and preferences would imply the absence of ISC.
 
-We estimate the distribution of DRI values under the null hypothesis using a permutation test in which individuals preferences are randomly shuffled.  This shuffling renders considerations-rankings and preference-rankings statistically independent while preserving the overall distribution of ISA values.
+We estimate the distribution of DRI values under the null hypothesis using a permutation test in which individuals preferences are randomly shuffled. This shuffling renders considerations-rankings and preference-rankings statistically independent while preserving the overall distribution of ISA values. We then calculate DRI using the standard methodology.
 
-We then calculate DRI using the standard methodology. Repeating this process 10,000 gives us an estimate of the null distribution of DRI values. We then calculate a 99% confidence interval for each case, and compare it to the actual DRI or DRI delta to obtain a two-sided p-value.
+Repeating this permutation process 10,000 times gives us an estimate of the null distribution of DRI values. We then calculate a 99% confidence interval for each case, and compare it to the actual DRI or DRI delta to obtain a two-sided p-value.
 
 
 ## 4. Results
