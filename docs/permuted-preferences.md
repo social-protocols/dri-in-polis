@@ -10,9 +10,9 @@ In this experiment, we use resampling to estimate the distribution of DRI values
 
 We calculate DRI using the method described in the supplementary materials to the paper:
 
-1. **Survey data**: Each individual provides (a) an ordinal ranking of ~20–40 consideration statements and (b) a ranking of ≤10 policy options.
-2. **Intersubjective Agreement (ISA)**: For every pair (i, j), compute **intersubjective agreement (ISA)** using Spearman’s ρ for their consideration-rankings (ρ<sub>C</sub>) and for their preference-rankings (ρ<sub>P</sub>)
-3. **Consistency distance**: Plot (ρ<sub>C</sub>, ρ<sub>P</sub>) on an x–y scatter; measure each point’s orthogonal distance to the 45° line (y = x). Small distances indicate high deliberative consistency.
+1. **Survey data**: Each participant provides (1) an ordinal ranking of ~20–40 consideration statements, and (2) a ranking of ≤10 preference statements.
+2. **Intersubjective Agreement (ISA)**: For each pair of participants (i, j), compute **intersubjective agreement (ISA)** using Spearman’s ρ for their consideration-rankings (ρ<sub>C</sub>) and for their preference-rankings (ρ<sub>P</sub>).
+3. **Consistency distance**: For each pair, plot (ρ<sub>C</sub>, ρ<sub>P</sub>) on an x–y scatter; measure each point’s orthogonal distance to the 45° line (y = x); small distances indicate high ISC.
 4. **Aggregate**: Average these distances for each individual (yielding DRI<sub>Ind</sub> scaled to [–1, +1]) and then across the group to obtain a single **group DRI**.
 
 ## 3. Experiment
