@@ -37,7 +37,7 @@ end
 
 function component_scores_plot(case, case_name)
 	# Create a layout with a title plot and two subplots
-	title_plot = plot(title = "Component Scores Case $case ($case_name)", grid = false, showaxis = false, bottom_margin = -50Plots.px)
+	title_plot = plot(title = "Component Scores: $case_name (case $case)", grid = false, showaxis = false, bottom_margin = -50Plots.px)
 
 	# Calculate scores
 	cscores, h_mean, v_mean, h_var, v_var = calculate_case_component_scores(case)
@@ -61,7 +61,7 @@ function component_scores_plot(case, case_name)
 	x_vals = [s[1] for s in cscores]
 	y_vals = [s[2] for s in cscores]
 	
-	scatterWithRegression(p1, x_vals, y_vals, "vertical score against horizontal score")		
+	scatterWithRegression(p1, x_vals, y_vals; title="vertical score against horizontal score")		
 	
 	# Add a diagonal line
 	# plot!(p1, [-1,1], [-1,1], 
@@ -76,13 +76,13 @@ function component_scores_plot(case, case_name)
 
 
 	# p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
-	# scatterWithRegression(p1, [s[1] for s in cscores], [s[2] for s in cscores], "vertical score against horizontal score")		
+	# scatterWithRegression(p1, [s[1] for s in cscores], [s[2] for s in cscores]; title="vertical score against horizontal score")		
 
 	# p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
-	# scatterWithRegression(p1, ICs[2].Q, [s[2] for s in cscores],"vertical score against post-deliberation Q")		
+	# scatterWithRegression(p1, ICs[2].Q, [s[2] for s in cscores]; title="vertical score against post-deliberation Q")		
 
 	p1 = plot(layout=(1,1), size=(500,500), dpi=100, margin=5Plots.mm)
-	scatterWithRegression(p1, ICs[2].Q, ICs[2].R .- ICs[1].R,"vertical delta against post-deliberation Q")		
+	scatterWithRegression(p1, ICs[2].Q, ICs[2].R .- ICs[1].R; title="vertical delta against post-deliberation Q")		
 
 	# Add mean point with error bars
 	scatter!(p1, [h_mean], [v_mean], 
