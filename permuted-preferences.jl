@@ -86,20 +86,22 @@ function create_dri_histograms(case, case_name, DRIs, DRIs_permuted, p_values)
     for (i, (p, values, observed, title, p_val)) in enumerate([
         (p1, pre_dris, DRIs[1], "Pre-Deliberation DRI", p_values[1]),
         (p2, post_dris, DRIs[2], "Post-Deliberation DRI", p_values[2]),
-        (p3, delta_dris, DRIs[3], "Delta", p_values[3])
+        (p3, delta_dris, DRIs[3], "ΔDRI", p_values[3])
     ])
         histogram!(p[1], values,
-            alpha=1.0,
+            # alpha=1.0,
             legend=false,
-            # title=title,
-            # titlefontsize=10,
             margin=5Plots.mm,
-            bins=:auto,
-            stroke=:none)
+            bins=40,
+            color=[:lightgreen, :lightblue, :lightgrey][i],
+            linecolor=:black,
+            linewidth=0.5,
+            xticks=round.(range(minimum(values), maximum(values), length=3), digits=2),
+            )
         
-        vline!(p[1], [observed], color=:red, label="Observed Score")
+        vline!(p[1], [observed], color=:red, linewidth=2, linestyle=:dot, label="Observed Score")
         mean_random = mean(skipmissing(values))
-        vline!(p[1], [mean_random], color=:blue, label="Mean Random Score")
+        vline!(p[1], [mean_random], color=:blue, linewidth=2, linestyle=:dot, label="Mean Random Score")
         
         xlabel!(p[1], title, fontsize=10, margin=10Plots.mm)
         ylabel!(p[1], "Count", fontsize=10, margin=10Plots.mm)
@@ -110,8 +112,8 @@ function create_dri_histograms(case, case_name, DRIs, DRIs_permuted, p_values)
         x_ann = xlims[1] + 0.12 * (xlims[2] - xlims[1])
         y_ann = ylims[2] + 0.17 * (ylims[2] - ylims[1])
         annotate!(p[1], x_ann, y_ann, text("Actual = $(round(observed, digits=2))", :red, 9, :left))
-        annotate!(p[1], x_ann, y_ann - 0.05 * (ylims[2] - ylims[1]), text("Mean = $(round(mean_random, digits=2))", :blue, 9, :left))
-        annotate!(p[1], x_ann, y_ann - 0.1 * (ylims[2] - ylims[1]), text("$(format_pvalue(p_val))", :black, 9, :left))
+        annotate!(p[1], x_ann, y_ann - 0.06 * (ylims[2] - ylims[1]), text("Mean = $(round(mean_random, digits=2))", :blue, 9, :left))
+        annotate!(p[1], x_ann, y_ann - 0.12 * (ylims[2] - ylims[1]), text("$(format_pvalue(p_val))", :black, 9, :left))
     end
 
     # Combine all plots
@@ -439,7 +441,7 @@ function create_dri_comparison_chart(results)
     ### Delta
     begin
         plot!(p[5],
-            title="Delta",
+            title="ΔDRI",
             legend=false,  # Remove legend from Delta plot since it's now in the dedicated legend plot
             left_margin=0Plots.mm,
             top_margin=0Plots.mm,
