@@ -316,7 +316,7 @@ function create_dri_comparison_chart(results)
     
     # Add main title
     plot!(p[1],
-        title="DRI Analysis: Actual vs Permuted Preferences ($dri_variant DRI)",
+        title="DRI Analysis: Actual vs Null Distribution (Permuted Preferences)",
         grid=false,
         showaxis=false,
         bottom_margin=-140Plots.px
@@ -340,7 +340,7 @@ function create_dri_comparison_chart(results)
     )
     # Add dummy series for legend
     bar!(p[2], [], [], label="Actual DRI", color=:blue, alpha=0.7, linewidth=0, bar_width=0.3, xlims=(0,0), ylims=(0,0))
-    scatter!(p[2], [], [], label="Permuted DRI (Null Distribution)", marker=:x, color=:black, markerstrokewidth=0.5, markersize=3, xlims=(0,0), ylims=(0,0))
+    scatter!(p[2], [], [], label="Null Distribution (Permuted Preferences)", marker=:x, color=:black, markerstrokewidth=0.5, markersize=3, xlims=(0,0), ylims=(0,0))
 
     y_positions = 1:1.5:(1.5 * n)
     bar_width = 0.3
@@ -349,7 +349,7 @@ function create_dri_comparison_chart(results)
     ### Pre-deliberation
     begin
         plot!(p[3],
-            title="Pre-Deliberation",
+            title="Pre-Deliberation DRI",
             legend=false,
             left_margin=0Plots.mm,
             top_margin=0Plots.mm,
@@ -364,22 +364,34 @@ function create_dri_comparison_chart(results)
             color=:blue,
             alpha=0.7,
             orientation=:h,
-            linewidth=0
+            linewidth=0,
         )
 
         # Add DRI value annotations
         for (i, y_pos) in enumerate(y_positions)
-            # Calculate x position - always place to the right of the bar
-            x_pos = max(0, results.DRIPre[i]) + 0.02 * val_range
+            # Calculate x position - align with right edge of bar for positive values, left edge for negative
+            x_pos = results.DRIPre[i]
             # Check if DRI value is within confidence interval
             p_color = i == n || (results.DRIPre[i] >= results.CIPre[i][1] && results.DRIPre[i] <= results.CIPre[i][2]) ? :black : :darkgreen
             # Only show p-value for case rows (not means row)
-            annotation_text = i == n ? "$(round(results.DRIPre[i], digits=2))" : "$(round(results.DRIPre[i], digits=2)) ($(format_pvalue(results.pValuePre[i])))"
+            dri_text = "$(round(results.DRIPre[i], digits=2))"
+            p_text = i == n ? "" : "($(format_pvalue(results.pValuePre[i])))"
+            # Position DRI value aligned with bar edge
             annotate!(p[3],
                 x_pos,
-                y_pos,
-                text(annotation_text, 9, p_color, :left)
+                y_pos - 0.4,  # Position below the bar
+                text(dri_text, 9, p_color, x_pos >= 0 ? :right : :left)
             )
+            # Position p-value after DRI value
+            if i != n  # Don't show p-value for means row
+                # For negative values, we need to account for the DRI value's width
+                p_x_pos = x_pos + (x_pos >= 0 ? 0.02 * val_range : 0.13 * val_range)
+                annotate!(p[3],
+                    p_x_pos,
+                    y_pos - 0.4,
+                    text(p_text, 9, p_color, :left)  # Always left-align p-value
+                )
+            end
         end
 
         # Error Bars
@@ -395,7 +407,7 @@ function create_dri_comparison_chart(results)
     ### Post-deliberation
     begin 
         plot!(p[4],
-            title="Post-Deliberation",
+            title="Post-Deliberation DRI",
             legend=false,
             left_margin=0Plots.mm,
             top_margin=0Plots.mm,
@@ -415,17 +427,29 @@ function create_dri_comparison_chart(results)
 
         # Add DRI value annotations
         for (i, y_pos) in enumerate(y_positions)
-            # Calculate x position - always place to the right of the bar
-            x_pos = max(0, results.DRIPost[i]) + 0.02 * val_range
+            # Calculate x position - align with right edge of bar for positive values, left edge for negative
+            x_pos = results.DRIPost[i]
             # Check if DRI value is within confidence interval
             p_color = i == n || (results.DRIPost[i] >= results.CIPost[i][1] && results.DRIPost[i] <= results.CIPost[i][2]) ? :black : :darkgreen
             # Only show p-value for case rows (not means row)
-            annotation_text = i == n ? "$(round(results.DRIPost[i], digits=2))" : "$(round(results.DRIPost[i], digits=2)) ($(format_pvalue(results.pValuePost[i])))"
+            dri_text = "$(round(results.DRIPost[i], digits=2))"
+            p_text = i == n ? "" : "($(format_pvalue(results.pValuePost[i])))"
+            # Position DRI value aligned with bar edge
             annotate!(p[4],
                 x_pos,
-                y_pos,
-                text(annotation_text, 9, p_color, :left)
+                y_pos - 0.4,  # Position below the bar
+                text(dri_text, 9, p_color, x_pos >= 0 ? :right : :left)
             )
+            # Position p-value after DRI value
+            if i != n  # Don't show p-value for means row
+                # For negative values, we need to account for the DRI value's width
+                p_x_pos = x_pos + (x_pos >= 0 ? 0.02 * val_range : 0.13 * val_range)
+                annotate!(p[4],
+                    p_x_pos,
+                    y_pos - 0.4,
+                    text(p_text, 9, p_color, :left)  # Always left-align p-value
+                )
+            end
         end
 
         # Error Bars
@@ -461,17 +485,29 @@ function create_dri_comparison_chart(results)
 
         # Add DRI value annotations
         for (i, y_pos) in enumerate(y_positions)
-            # Calculate x position - always place to the right of the bar
-            x_pos = max(0, results.DRIDelta[i]) + 0.02 * val_range
+            # Calculate x position - align with right edge of bar for positive values, left edge for negative
+            x_pos = results.DRIDelta[i]
             # Check if DRI value is within confidence interval
             p_color = i == n || (results.DRIDelta[i] >= results.CIDelta[i][1] && results.DRIDelta[i] <= results.CIDelta[i][2]) ? :black : :darkgreen
             # Only show p-value for case rows (not means row)
-            annotation_text = i == n ? "$(round(results.DRIDelta[i], digits=2))" : "$(round(results.DRIDelta[i], digits=2)) ($(format_pvalue(results.pValueDelta[i])))"
+            dri_text = "$(round(results.DRIDelta[i], digits=2))"
+            p_text = i == n ? "" : "($(format_pvalue(results.pValueDelta[i])))"
+            # Position DRI value aligned with bar edge
             annotate!(p[5],
                 x_pos,
-                y_pos,
-                text(annotation_text, 9, p_color, :left)
+                y_pos - 0.4,  # Position below the bar
+                text(dri_text, 9, p_color, x_pos >= 0 ? :right : :left)
             )
+            # Position p-value after DRI value
+            if i != n  # Don't show p-value for means row
+                # For negative values, we need to account for the DRI value's width
+                p_x_pos = x_pos + (x_pos >= 0 ? 0.02 * val_range : 0.13 * val_range)
+                annotate!(p[5],
+                    p_x_pos,
+                    y_pos - 0.4,
+                    text(p_text, 9, p_color, :left)  # Always left-align p-value
+                )
+            end
         end
 
         # Error Bars
@@ -507,7 +543,7 @@ function create_dri_comparison_chart(results)
     
     # Add vertical lines at x=0 for all subplots
     for i in 3:5
-        vline!(p[i], [0], color=:black, label="")
+        vline!(p[i], [0], color=:black, linestyle=:dot, label="")
     end
     
     # Axis labels
