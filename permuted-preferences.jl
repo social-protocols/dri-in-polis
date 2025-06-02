@@ -11,6 +11,7 @@ using GLMNet
 using Statistics # For calculating metrics if needed
 using Lasso, LinearAlgebra
 using Random
+using Printf  # For @sprintf macro
 
 include("prepare-data.jl")
 include("dri-calculations.jl")
@@ -29,6 +30,27 @@ end
 function calculate_pdri(IC)
     return cor(IC.Q, IC.R)
 end
+
+# https://chatgpt.com/share/683e2b8e-6f0c-8004-9009-89b92c504785
+function format_pvalue(p; digits=3)
+    sci_thresh   = 10.0^(-digits)
+    upper_thresh = 1.0 - sci_thresh
+
+    if isnan(p)
+        return "p = NA"
+    elseif p == 0.0
+        return "p < $(sci_thresh)"
+    elseif p < sci_thresh
+        return "p = $(round(p, sigdigits=2))"
+    elseif p >= upper_thresh
+        return "p > $(round(upper_thresh, digits=digits))"
+    else
+        r = round(p, digits=digits)
+        return r == 0.0 ? "p < $(sci_thresh)" : "p = $(r)"
+    end
+end
+
+
 
 """
     create_dri_histograms(case, case_name, DRIs, DRIs_permuted, p_values)
@@ -89,7 +111,7 @@ function create_dri_histograms(case, case_name, DRIs, DRIs_permuted, p_values)
         y_ann = ylims[2] + 0.17 * (ylims[2] - ylims[1])
         annotate!(p[1], x_ann, y_ann, text("Actual = $(round(observed, digits=2))", :red, 9, :left))
         annotate!(p[1], x_ann, y_ann - 0.05 * (ylims[2] - ylims[1]), text("Mean = $(round(mean_random, digits=2))", :blue, 9, :left))
-        annotate!(p[1], x_ann, y_ann - 0.1 * (ylims[2] - ylims[1]), text("p = $(round(p_val, digits=3))", :black, 9, :left))
+        annotate!(p[1], x_ann, y_ann - 0.1 * (ylims[2] - ylims[1]), text("$(format_pvalue(p_val))", :black, 9, :left))
     end
 
     # Combine all plots
@@ -350,7 +372,7 @@ function create_dri_comparison_chart(results)
             # Check if DRI value is within confidence interval
             p_color = i == n || (results.DRIPre[i] >= results.CIPre[i][1] && results.DRIPre[i] <= results.CIPre[i][2]) ? :black : :darkgreen
             # Only show p-value for case rows (not means row)
-            annotation_text = i == n ? "$(round(results.DRIPre[i], digits=2))" : "$(round(results.DRIPre[i], digits=2)) (p=$(round(results.pValuePre[i], digits=3)))"
+            annotation_text = i == n ? "$(round(results.DRIPre[i], digits=2))" : "$(round(results.DRIPre[i], digits=2)) ($(format_pvalue(results.pValuePre[i])))"
             annotate!(p[3],
                 x_pos,
                 y_pos,
@@ -396,7 +418,7 @@ function create_dri_comparison_chart(results)
             # Check if DRI value is within confidence interval
             p_color = i == n || (results.DRIPost[i] >= results.CIPost[i][1] && results.DRIPost[i] <= results.CIPost[i][2]) ? :black : :darkgreen
             # Only show p-value for case rows (not means row)
-            annotation_text = i == n ? "$(round(results.DRIPost[i], digits=2))" : "$(round(results.DRIPost[i], digits=2)) (p=$(round(results.pValuePost[i], digits=3)))"
+            annotation_text = i == n ? "$(round(results.DRIPost[i], digits=2))" : "$(round(results.DRIPost[i], digits=2)) ($(format_pvalue(results.pValuePost[i])))"
             annotate!(p[4],
                 x_pos,
                 y_pos,
@@ -442,7 +464,7 @@ function create_dri_comparison_chart(results)
             # Check if DRI value is within confidence interval
             p_color = i == n || (results.DRIDelta[i] >= results.CIDelta[i][1] && results.DRIDelta[i] <= results.CIDelta[i][2]) ? :black : :darkgreen
             # Only show p-value for case rows (not means row)
-            annotation_text = i == n ? "$(round(results.DRIDelta[i], digits=2))" : "$(round(results.DRIDelta[i], digits=2)) (p=$(round(results.pValueDelta[i], digits=3)))"
+            annotation_text = i == n ? "$(round(results.DRIDelta[i], digits=2))" : "$(round(results.DRIDelta[i], digits=2)) ($(format_pvalue(results.pValueDelta[i])))"
             annotate!(p[5],
                 x_pos,
                 y_pos,
