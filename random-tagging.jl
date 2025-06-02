@@ -98,7 +98,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
             case_name = data_filtered[1, :Case]
             stage_name = stage == 1 ? "PRE" : "POST"
             
-            println("\nProcessing Case $case ($case_name) - Stage $stage ($stage_name)")
+            println("\nProcessing $case_name (case $case) - $stage_name")
             
             # Calculate original DRI
             F_df, Pref_df = prepare_data(data_filtered)
@@ -156,7 +156,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
             histogram!(p[stage], random_dri_values, 
                 alpha=1.0,
                 legend=false,
-                title="Distribution of Random DRI Values\nCase $case ($case_name) $stage_name",
+                title="Distribution of Random DRI Values\n$case_name(case $case) -- $stage_name",
                 titlefontsize=10,
                 margin=10Plots.mm,
                 bins=:auto,

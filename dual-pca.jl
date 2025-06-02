@@ -180,7 +180,7 @@ function dualPCA_plot(case, case_name, min_variance_explained::Float64, correlat
 
     # Create main title plot
     title_plot = plot(
-        title = "DRI Plots Case $case ($case_name): Standard vs Dual PCA\n(min $min_variance_explained variance explained, $correlation_method)",
+        title = "DRI Plots: $case_name (case $case)\nStandard vs Dual PCA\n(min $min_variance_explained variance explained, $correlation_method)",
         grid = false,
         showaxis = false,
         bottom_margin = -100Plots.px

@@ -41,9 +41,10 @@ Creates three histograms showing the distribution of DRI values from resampling:
 Each histogram includes a vertical line showing the actual observed DRI value and the p-value.
 """
 function create_dri_histograms(case, case_name, DRIs, DRIs_permuted, p_values)
+ 
     # Create main title plot
     title_plot = plot(
-        title = "Null Distribution (DRI with Permuted Preferences)\nCase $case ($case_name)",
+        title = "DRI Null Distribution (Permuted Preferences)\n$case_name (case $case)",
         grid = false,
         showaxis = false,
         bottom_margin = -50Plots.px
@@ -164,7 +165,7 @@ function permuted_prefs(data, case, case_name)
     DRIs_permuted = []
     ICs_permuted_sample = []
     for i in 1:nSamples
-        print("\rCase $case ($case_name): $i/$nSamples")
+        print("\rCase $case_name (case): $i/$nSamples")
         DRIs_permuted_sample = []
         ICs_permuted = []
         n_pairs = size(ICs[1])[1]
@@ -234,7 +235,7 @@ function permuted_prefs(data, case, case_name)
         for i in 1:3
     ]
 
-    p = DRI_Comparison_Plot(case, case_name, ICs, ICs_permuted_sample, "Actual v. Permuted Preferences", "Permuted Preferences (Single Sample)")
+    # p = DRI_Comparison_Plot(case, case_name, ICs, ICs_permuted_sample, "Actual v. Permuted Preferences", "Permuted Preferences (Single Sample)")
 
     # Create and save histograms
     hist_p = create_dri_histograms(case, case_name, DRIs, DRIs_permuted, p_values)
@@ -525,7 +526,7 @@ function permuted_prefs_main()
         case_data = filter(r -> r.CaseID == case, data)
         case_name = case_data[1, :Case]
             
-        print("Case $case ($case_name)")
+        print("Case $case_name (case)")
         (p, DRIs, permuted_means, p_values, ρs, confidence_intervals) = permuted_prefs(case_data, case, case_name)
 
         # Add to results

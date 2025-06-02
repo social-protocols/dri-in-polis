@@ -163,7 +163,7 @@ function DRI_Comparison_Plot(case, case_name, ICs_standard, ICs, title, subtitle
 
     # Create main title plot
     title_plot = plot(
-        title = "DRI Plots Case $case ($case_name): $title",
+        title = "DRI Plots: $case_name (case $case)\n$title",
         grid = false,
         showaxis = false,
         bottom_margin = -100Plots.px
