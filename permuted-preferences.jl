@@ -260,13 +260,13 @@ function permuted_prefs(data, case, case_name)
     # p = DRI_Comparison_Plot(case, case_name, ICs, ICs_permuted_sample, "Actual v. Permuted Preferences", "Permuted Preferences (Single Sample)")
 
     # Create and save histograms
-    hist_p = create_dri_histograms(case, case_name, DRIs, DRIs_permuted, p_values)
+    p = create_dri_histograms(case, case_name, DRIs, DRIs_permuted, p_values)
 
     # Combine plots side by side
     # layout=(2,1),
-    combined_p = plot(p, hist_p, layout = @layout([A{0.70h}; B]), size=(900,1200), margin=0Plots.mm, left_margin=5Plots.mm, right_margin=5Plots.mm, subplot_margins=0Plots.mm)
+    # combined_p = plot(p, hist_p, layout = @layout([A{0.70h}; B]), size=(900,1200), margin=0Plots.mm, left_margin=5Plots.mm, right_margin=5Plots.mm, subplot_margins=0Plots.mm)
     
-    return combined_p, DRIs, permuted_means, p_values, ρs, confidence_intervals
+    return p, DRIs, permuted_means, p_values, ρs, confidence_intervals
 end
 
 # 2) define Bayesian shrinkage toward the null‐mean (permuted_mean)
