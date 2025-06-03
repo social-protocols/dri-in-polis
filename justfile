@@ -24,7 +24,8 @@ statement-subset:
 dual-pca MAX_VARIANCE_EXPLAINED="" METHOD="":
    julia --project dual-pca.jl {{MAX_VARIANCE_EXPLAINED}} {{METHOD}}
 
-
-
 component-scores:
    julia --project component-scores.jl
+
+permuted-preferences:
+   julia --project permuted-preferences.jl

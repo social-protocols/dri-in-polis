@@ -189,7 +189,7 @@ function permuted_prefs(data, case, case_name)
     DRIs_permuted = []
     ICs_permuted_sample = []
     for i in 1:nSamples
-        print("\rCase $case_name (case): $i/$nSamples")
+        print("\rCase $case_name (case $case): $i/$nSamples")
         DRIs_permuted_sample = []
         ICs_permuted = []
         n_pairs = size(ICs[1])[1]
