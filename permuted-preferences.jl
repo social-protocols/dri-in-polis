@@ -93,15 +93,13 @@ function create_dri_histograms(case, case_name, DRIs, DRIs_permuted, p_values)
             legend=false,
             margin=5Plots.mm,
             bins=40,
-            color=[:lightgreen, :lightblue, :lightgrey][i],
+            color=[:darkgray, :gray, "#8661c1"][i],
             linecolor=:black,
             linewidth=0.5,
             xticks=round.(range(minimum(values), maximum(values), length=3), digits=2),
             )
         
-        vline!(p[1], [observed], color=:red, linewidth=2, linestyle=:dot, label="Observed Score")
-        mean_random = mean(skipmissing(values))
-        vline!(p[1], [mean_random], color=:blue, linewidth=2, linestyle=:dot, label="Mean Random Score")
+
         
         xlabel!(p[1], title, fontsize=10, margin=10Plots.mm)
         ylabel!(p[1], "Count", fontsize=10, margin=10Plots.mm)
@@ -111,8 +109,17 @@ function create_dri_histograms(case, case_name, DRIs, DRIs_permuted, p_values)
         ylims = Plots.ylims(p[1])
         x_ann = xlims[1] + 0.12 * (xlims[2] - xlims[1])
         y_ann = ylims[2] + 0.17 * (ylims[2] - ylims[1])
-        annotate!(p[1], x_ann, y_ann, text("Actual = $(round(observed, digits=2))", :red, 9, :left))
-        annotate!(p[1], x_ann, y_ann - 0.06 * (ylims[2] - ylims[1]), text("Mean = $(round(mean_random, digits=2))", :blue, 9, :left))
+
+        # actual score with annotation
+        vline!(p[1], [observed], color=:blue, linewidth=3, linestyle=:dot)
+        annotate!(p[1], x_ann, y_ann, text("Actual = $(round(observed, digits=2))", :blue, 9, :left))
+
+        # mean random score with annotation
+        mean_random = mean(skipmissing(values))
+        vline!(p[1], [mean_random], color="#d19032", linewidth=3, linestyle=:dot)
+        annotate!(p[1], x_ann, y_ann - 0.06 * (ylims[2] - ylims[1]), text("Mean = $(round(mean_random, digits=2))", "#d19032", 9, :left))
+
+        # p-value annotation
         annotate!(p[1], x_ann, y_ann - 0.12 * (ylims[2] - ylims[1]), text("$(format_pvalue(p_val))", :black, 9, :left))
     end
 
