@@ -21,13 +21,13 @@ DRI is designed to measure intersubjective-consistency (ISC), a group-level feat
 
 We estimate the distribution of DRI values under the null hypothesis using a permutation test in which individuals preferences are randomly shuffled. This shuffling renders considerations-rankings and preference-rankings statistically independent while preserving the overall distribution of ISA values. We then calculate DRI using the standard methodology.
 
-Repeating this permutation process 10,000 times gives us an estimate of the null distribution of DRI values. We then calculate a 99% range for each case, and compare it to the actual DRI or DRI delta to obtain a two-sided p-value.
+Repeating this permutation process 10,000 times gives us an estimate of the null distribution of DRI values. We then calculate a 99% null interval for each case, and compare it to the actual DRI or DRI delta to obtain a two-sided p-value.
 
 ## 4. Results
 
 ### 4.1 Overall Results
 
-The results are summarized in the figure below. For each case and each stage (pre-, post-, and delta), the mean and 99% range of the null distribution are shown in black, and actual DRI values are shown in blue. Cases where actual DRI or delta falls outside the 99% null interval are shown in green.
+The results are summarized in the figure below. For each case and each stage (pre-, post-, and delta), the mean and 99% null interval of the null distribution are shown in black, and actual DRI values are shown in blue. Cases where actual DRI or delta falls outside the 99% null interval are shown in green.
 
 ![Chart of Overall Results](../published-output/permuted-preferences/dri-comparison-permuted-preferences-standard.png)
 
@@ -44,14 +44,14 @@ For the two sample cases below, the mean of the null distribution is high, and t
 
 #### 4.2.2 Sample Cases: High Mean, Low p-value
 
-For the two sample cases below, the mean of the null distribution is high. However, actual post-deliberation DRI and DRI deltas fall *outside* the 99% null interval. This suggests that deliberation increased ISC in these cases.
+For the two sample cases below, the mean of the null distribution is high. However, actual post-deliberation DRI and DRI deltas fall *outside* (or nearly outside) the 99% null interval. This suggests that deliberation increased ISC in these cases.
 
 ![Null Distribution for Case 3.0](../published-output/permuted-preferences/case-3.0-permuted-preferences-standard.png)
 ![Null Distribution for Case 12.0](../published-output/permuted-preferences/case-12.0-permuted-preferences-standard.png)
 
 #### 4.2.3 Sample Cases: Uppsala Speaks
 
-Finally, it is interesting to compare the three Uppsala Speaks cases. In all three cases (including the control), both pre-deliberation and post-deliberation DRI are outside or nearly outside the 99% range. For the two treatment cases, ΔDRI is positive. However, only for the "Group Building Plus" case does the *delta* fall outside the null interval.
+Finally, it is interesting to compare the three Uppsala Speaks cases. In all three cases (including the control), both pre-deliberation and post-deliberation DRI are outside or nearly outside the 99% null interval. For the two treatment cases, ΔDRI is positive. However, only for the "Group Building Plus" case does the *delta* fall outside the null interval.
 
 ![Null Distribution for Case 0.1](../published-output/permuted-preferences/case-0.1-permuted-preferences-standard.png)
 ![Null Distribution for Case 1.0](../published-output/permuted-preferences/case-1.0-permuted-preferences-standard.png)
