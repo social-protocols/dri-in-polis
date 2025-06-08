@@ -17,7 +17,7 @@ We calculate DRI using the method described in the supplementary materials to th
 
 ## 3. Experiment
 
-DRI is designed to measure intersubjective-consistency (ISC), a group-level feature which, when maximized, means that "the extent to which deliberators disagree is constrained by a shared 'logic,' such that their diverging values or beliefs should yield a comparable degree of divergence in expressed preferences.” (Niemeyer et al., 2023, p. 4). Thus, ISC should manifest as a correlation between considerations-ISA and preferences-ISA. DRI is designed to measure this correlation in a way that overcomes the problem of domain restriction (***todo: reference C.1 in supplementary matrials***). It follows that the absence of any correlation (e.g. statistical independence) between considerations and preferences would imply the absence of ISC.
+DRI is designed to measure intersubjective-consistency (ISC), a group-level feature which, when maximized, means that "the extent to which deliberators disagree is constrained by a shared 'logic,' such that their diverging values or beliefs should yield a comparable degree of divergence in expressed preferences.” (Niemeyer et al., 2023, p. 4). Thus, ISC should manifest as a correlation between considerations-ISA and preferences-ISA. DRI is designed to measure this correlation in a way that overcomes the problem of domain restriction. It follows that the absence of any correlation (e.g. statistical independence) between considerations and preferences would imply the absence of ISC.
 
 We estimate the distribution of DRI values under the null hypothesis using a permutation test in which individuals preferences are randomly shuffled. This shuffling renders considerations-rankings and preference-rankings statistically independent while preserving the overall distribution of ISA values. We then calculate DRI using the standard methodology.
 
@@ -33,7 +33,7 @@ The results are summarized in the figure below. For each case and each stage (pr
 
 ### 4.2 Case-Level Results
 
-Histograms of the null distributions for a few sample cases are shown below. Each plot below shows the null distribution for the pre-deliberation, post-deliberation, and delta DRIs for one case. Plots for all cases can be found [in this directory](../published-output/permuted-preferences/). 
+Histograms of the null distributions for a few sample cases are shown below. Each plot below shows the null distribution for the pre-deliberation, post-deliberation, and delta DRIs for one case. Plots for all cases can be found [in this directory](../published-output/permuted-preferences/).
 
 #### 4.2.1 Sample Cases: High Mean, High p-value
 
@@ -44,16 +44,15 @@ For the two sample cases below, the mean of the null distribution is high, and t
 
 #### 4.2.2 Sample Cases: High Mean, Low p-value
 
-For the two sample cases below, the mean of the null distribution is high. However, actual post-deliberation DRI and DRI deltas fall **outside** the 99% null interval. This suggests that deliberation increased ISC in these cases.
+For the two sample cases below, the mean of the null distribution is high. However, actual post-deliberation DRI and DRI deltas fall *outside* the 99% null interval. This suggests that deliberation increased ISC in these cases.
 
 ![Null Distribution for Case 3.0](../published-output/permuted-preferences/case-3.0-permuted-preferences-standard.png)
 ![Null Distribution for Case 12.0](../published-output/permuted-preferences/case-12.0-permuted-preferences-standard.png)
 
 #### 4.2.3 Sample Cases: Uppsala Speaks
 
-Finally, it is interesting to compare the three Uppsala Speaks cases. In all three cases (including the control), both pre-deliberation and post-deliberation DRI are outside or nearly outside the 99% range. For the two treatment cases, ΔDRI is positive. However, only for the "Group Building Plus" case does the *delta* fall outside the null interval. 
+Finally, it is interesting to compare the three Uppsala Speaks cases. In all three cases (including the control), both pre-deliberation and post-deliberation DRI are outside or nearly outside the 99% range. For the two treatment cases, ΔDRI is positive. However, only for the "Group Building Plus" case does the *delta* fall outside the null interval.
 
 ![Null Distribution for Case 0.1](../published-output/permuted-preferences/case-0.1-permuted-preferences-standard.png)
 ![Null Distribution for Case 1.0](../published-output/permuted-preferences/case-1.0-permuted-preferences-standard.png)
 ![Null Distribution for Case 2.0](../published-output/permuted-preferences/case-2.0-permuted-preferences-standard.png)
-
