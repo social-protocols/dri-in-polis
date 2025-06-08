@@ -40,7 +40,7 @@ Histograms of the null distributions for a few sample cases are shown below. Eac
 For the two sample cases below, the mean of the null distribution is high, and the actual DRI falls well within the 99% null interval. This suggests that positive DRI values in these cases do not indicate ISC.
 
 ![Null Distribution for Case 5.0](../published-output/permuted-preferences/case-5.0-permuted-preferences-standard.png)
-![Null Distribution for Case 7.0](../published-output/permuted-preferences/case-7.0-permuted-preferences-standard.png)
+![Null Distribution for Case 18.0](../published-output/permuted-preferences/case-18.0-permuted-preferences-standard.png)
 
 #### 4.2.2 Sample Cases: High Mean, Low p-value
 
