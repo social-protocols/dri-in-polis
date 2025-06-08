@@ -293,6 +293,10 @@ Creates a horizontal bar chart comparing DRI values across different cases, show
 Each with their corresponding permuted means and ρ values.
 """
 function create_dri_comparison_chart(results)
+
+    # build chart from bottom up
+    results = reverse!(results)
+
     # Find the range of values
     min_val = minimum([minimum(results.DRIPre), minimum(results.MeanPermutedDRIPre),
                       minimum(results.DRIPost), minimum(results.MeanPermutedDRIPost),
@@ -636,14 +640,11 @@ function permuted_prefs_main()
         (mean([ci[1] for ci in results.CIPost]), mean([ci[2] for ci in results.CIPost])),
         (mean([ci[1] for ci in results.CIDelta]), mean([ci[2] for ci in results.CIDelta])),
     )
-    push!(results, mean_row)
+    pushfirst!(results, mean_row)
 
     # Save results to CSV
     CSV.write("local-output/permuted-preferences/permuted-preferences-$dri_variant-results.csv", results)
-    
-    # Create horizontal bar chart of DRI values
-    sort!(results, [:case], by=x -> x, rev=true)
-    
+   
     # Create and save the comparison chart
     p = create_dri_comparison_chart(results)
     savefig(p, "local-output/permuted-preferences/dri-comparison-permuted-preferences-$dri_variant.png")
