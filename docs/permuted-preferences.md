@@ -27,13 +27,13 @@ Repeating this permutation process 10,000 times gives us an estimate of the null
 
 ### 4.1 Overall Results
 
-The results are summarized in the figure below. For each case and each stage (pre-, post-, and delta), the mean and 99% null interval of the null distribution are shown in black, and actual DRI values are shown in blue. Cases where actual DRI or delta falls outside the 99% null interval are shown in green.
+The results are summarized in the figure below. For each case and each stage (pre-, post-, and delta), the mean and 99% interval of the null distribution are shown in black, and actual DRI values are shown in blue. Cases where actual DRI or delta falls outside the 99% null interval are shown in green.
 
 ![Chart of Overall Results](../published-output/permuted-preferences/dri-comparison-permuted-preferences-standard.png)
 
 ### 4.2 Case-Level Results
 
-Histograms of the null distributions for a few sample cases are shown below. Each plot below shows the null distribution for the pre-deliberation, post-deliberation, and delta DRIs for one case. Plots for all cases can be found [in this directory](../published-output/permuted-preferences/).
+Histograms of the null distributions for a few sample cases are shown below. Each plot shows the null distribution for the pre-deliberation, post-deliberation, and delta DRIs for one case. Plots for all cases can be found [in this directory](../published-output/permuted-preferences/).
 
 #### 4.2.1 Sample Cases: High Mean, High p-value
 
@@ -51,7 +51,7 @@ For the two sample cases below, the mean of the null distribution is high. Howev
 
 #### 4.2.3 Sample Cases: Uppsala Speaks
 
-Finally, it is interesting to compare the three Uppsala Speaks cases. In all three cases (including the control), both pre-deliberation and post-deliberation DRI are outside or nearly outside the 99% null interval. For the two treatment cases, ΔDRI is positive. However, only for the "Group Building Plus" case does the *delta* fall outside the null interval.
+Finally, it is interesting to compare the three Uppsala Speaks cases. In all three cases (including the control), both pre-deliberation and post-deliberation DRI are outside or nearly outside the 99% null interval. For the two treatment cases, ΔDRI is positive. However, only for the "Group Building Plus" case does ΔDRI fall outside the null interval.
 
 ![Null Distribution for Case 0.1](../published-output/permuted-preferences/case-0.1-permuted-preferences-standard.png)
 ![Null Distribution for Case 1.0](../published-output/permuted-preferences/case-1.0-permuted-preferences-standard.png)
