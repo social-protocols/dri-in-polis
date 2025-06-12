@@ -2,7 +2,7 @@
 
 The **Deliberative Reason Index (DRI)**, as proposed by [Niemeyer, Veri, Dryzek, and Bächtiger (2023)](https://doi.org/10.1017/S0003055423000023) measures the **intersubjective consistency** (ISC) of a group -- the extent to which individuals' agreement on preferences (like policies) correlates with their agreement on underlying considerations (like beliefs and values). High intersubjective consistency indicates that a group has arrived at a shared logic linking considerations to preferences. The authors use DRI to estimate intersubjective consistency for 19 deliberative forums and to estimate the effect of deliberation on ISC under various conditions.
 
-In this experiment, we use resampling to estimate the distribution of DRI values for each case under the null hypothesis that considerations and preferences are statistically independent (implying absence of ISC). We find that the mean of this distribution is positive for most cases -- high DRI values are expected even when there is no correlation between considerations and preferences. However, for many cases, DRI values fall outside the range expected under the null hypothesis.
+In this experiment, estimate the distribution of DRI values for each case under the null hypothesis that considerations and preferences are statistically independent (implying absence of ISC). We find that the mean of this distribution is positive for most cases -- high DRI values are expected even when there is no correlation between considerations and preferences. However, for many cases, DRI values fall outside the range expected under the null hypothesis.
 
 ----
 
